@@ -13,7 +13,7 @@ import { type Parser } from "@/Parser";
 import { ParserConsumerResult } from "@/ParserConsumerResult";
 
 export class ParserConsumer {
-  public offsetLead = -1;
+  public offsetLead: number | undefined;
 
   public constructor(public parser: Parser, public input: string) {}
 
@@ -43,15 +43,18 @@ export class ParserConsumer {
     const consume = this.consumeRule(this.parser.ruleInitial!);
 
     if (this.input) {
-      if (this.offsetLead === -1 || this.offsetLead !== this.input.length) {
+      if (
+        this.offsetLead === undefined ||
+        this.offsetLead !== this.input.length
+      ) {
         const inputPosition = matchAny(this.input, this.offsetLead)?.[0];
-        const errorOffset = Math.max(0, this.offsetLead);
+        const errorOffset = Math.max(0, this.offsetLead ?? 0);
 
         throw new Error(
           `unexpected "${inputPosition}" at offset ${errorOffset}`
         );
       }
-    } else if (this.offsetLead === -1) {
+    } else if (this.offsetLead === undefined) {
       throw new Error(`unexpected empty input`);
     }
 
@@ -111,6 +114,7 @@ export class ParserConsumer {
           }
 
           offset += consumeKeyword;
+          this.offsetLead = Math.max(offset, this.offsetLead ?? 0);
         }
 
         if (term instanceof RegExp) {
@@ -136,6 +140,7 @@ export class ParserConsumer {
             }
 
             offset += termResult[0].length;
+            this.offsetLead = Math.max(offset, this.offsetLead ?? 0);
             continue;
           }
 
@@ -149,6 +154,7 @@ export class ParserConsumer {
             }
 
             offset += consumeKeyword;
+            this.offsetLead = Math.max(offset, this.offsetLead ?? 0);
             continue;
           }
 
@@ -156,7 +162,7 @@ export class ParserConsumer {
             const consumeRule = this.consumeRule(term, offset);
 
             if (consumeRule === undefined) {
-              this.offsetLead = Math.max(offset, this.offsetLead);
+              this.offsetLead = Math.max(offset, this.offsetLead ?? 0);
             } else {
               if (Array.isArray(matches)) {
                 matches.push(consumeRule);
@@ -167,6 +173,7 @@ export class ParserConsumer {
               }
 
               ({ offset } = consumeRule);
+              this.offsetLead = Math.max(offset, this.offsetLead ?? 0);
               continue;
             }
 
@@ -185,7 +192,7 @@ export class ParserConsumer {
       }
 
       if (offset !== offsetIn || matches !== undefined) {
-        this.offsetLead = Math.max(offset, this.offsetLead, 0);
+        this.offsetLead ??= 0;
 
         return new ParserConsumerResult(rule, offset, matches ?? undefined);
       }

@@ -148,8 +148,8 @@ describe("Parser class", () => {
 
     expect(parser.parse("a-a")).toBeUndefined();
     expect(parser.parse("aa")).toBeUndefined();
-    expect(() => parser.parse("a--a")).toThrow('unexpected "a" at offset 0');
-    expect(() => parser.parse("a a")).toThrow('unexpected "a" at offset 0');
+    expect(() => parser.parse("a--a")).toThrow('unexpected "-" at offset 2');
+    expect(() => parser.parse("a a")).toThrow('unexpected " " at offset 1');
   });
 
   test("rule strict must not accept separator between terms", () => {
@@ -159,7 +159,7 @@ describe("Parser class", () => {
     parser.ruleStrict("initial", ["a", "a"]);
 
     expect(parser.parse("aa")).toBeUndefined();
-    expect(() => parser.parse("a a")).toThrow('unexpected "a" at offset 0');
+    expect(() => parser.parse("a a")).toThrow('unexpected " " at offset 1');
   });
 
   test("rule separated must requires all terms be separated", () => {
@@ -169,7 +169,7 @@ describe("Parser class", () => {
     parser.ruleSeparated("initial", ["a", "a"]);
 
     expect(parser.parse("a a")).toBeUndefined();
-    expect(() => parser.parse("aa")).toThrow('unexpected "aa" at offset 0');
+    expect(() => parser.parse("aa")).toThrow('unexpected "a" at offset 1');
   });
 
   test("rule nullable", () => {
@@ -292,7 +292,7 @@ describe("Parser class", () => {
     parser.separator(false);
     parser.rule("example", [/\d/u, /\d/u]);
 
-    expect(() => parser.parse("1 2")).toThrow('unexpected "1" at offset 0');
+    expect(() => parser.parse("1 2")).toThrow('unexpected " " at offset 1');
   });
 
   test("readme: strict or separated rules", () => {
@@ -305,6 +305,6 @@ describe("Parser class", () => {
 
     expect(parser.parse("1+2")).toStrictEqual(["1", "2"]);
     expect(parser.parse("1 + 2")).toStrictEqual(["1", "2"]);
-    expect(() => parser.parse("1+ 2")).toThrow('unexpected "1" at offset 0');
+    expect(() => parser.parse("1+ 2")).toThrow('unexpected " " at offset 2');
   });
 });
