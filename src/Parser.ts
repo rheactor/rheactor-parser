@@ -1,5 +1,6 @@
 import {
   getTokenName,
+  isRegexpTextOnly,
   matchIdentifier,
   regexpSticky,
   RuleSeparatorMode,
@@ -65,7 +66,15 @@ export class Parser {
 
     this.tokensMap.set(
       name,
-      terms.map((term) => (term instanceof RegExp ? regexpSticky(term) : term))
+      terms.map((term) => {
+        if (term instanceof RegExp) {
+          return isRegexpTextOnly(term.source)
+            ? term.source
+            : regexpSticky(term);
+        }
+
+        return term;
+      })
     );
   }
 
