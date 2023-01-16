@@ -209,6 +209,22 @@ export class ParserConsumer {
 
             continue rule;
           }
+        } else if (term && "literal" in term) {
+          if (this.input.startsWith(term.literal, offset)) {
+            if (Array.isArray(matches)) {
+              matches.push(term.literal);
+            } else if (matches === undefined || matches === null) {
+              matches = term.literal;
+            } else {
+              matches = [matches, term.literal];
+            }
+
+            offset += term.literal.length;
+            this.offsetLead = Math.max(offset, this.offsetLead ?? 0);
+            continue;
+          }
+
+          continue rule;
         } else {
           matches ??= null;
           continue;

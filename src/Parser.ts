@@ -140,9 +140,15 @@ export class Parser {
     this.rulesMap.get(name)!.push({
       transform,
       separatorMode,
-      terms: ruleTerms.map((term) =>
-        term instanceof RegExp ? regexpSticky(term) : term
-      ),
+      terms: ruleTerms.map((term) => {
+        if (term instanceof RegExp) {
+          return isRegexpTextOnly(term.source)
+            ? { literal: term.source }
+            : regexpSticky(term);
+        }
+
+        return term;
+      }),
     });
   }
 }
