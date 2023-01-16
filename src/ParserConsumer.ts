@@ -58,12 +58,8 @@ export class ParserConsumer {
       throw new Error(`unexpected empty input`);
     }
 
-    if (consume === undefined) {
-      return undefined;
-    }
-
     // Performs the entire process of transforming the terms found.
-    return ParserConsumer.applyTransformation(consume);
+    return ParserConsumer.applyTransformation(consume!);
   }
 
   private consumeKeyword(name: KeywordIdentifier, offsetIn: number): number {

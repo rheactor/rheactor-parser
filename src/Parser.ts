@@ -107,6 +107,10 @@ export class Parser {
 
     const ruleTerms = Array.isArray(terms) ? terms : [terms];
 
+    if (!ruleTerms.length) {
+      throw new Error(`rule "${name}" must define at least one term`);
+    }
+
     this.rules.get(name)!.push({
       transform,
       separatorMode,

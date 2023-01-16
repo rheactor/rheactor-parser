@@ -62,7 +62,7 @@ describe("Parser class", () => {
     expect(() => {
       const parser = new Parser();
 
-      parser.rule("a", []);
+      parser.rule("a", [/./u]);
       parser.keyword("b");
     }).toThrow('keyword "b" must be declared before rules');
   });
@@ -188,6 +188,14 @@ describe("Parser class", () => {
     parser.rule("initial", ["a"]);
 
     expect(() => parser.parse("")).toThrow("unexpected empty input");
+  });
+
+  test("rule without terms", () => {
+    const parser = new Parser();
+
+    expect(() => parser.rule("initial", [])).toThrow(
+      'rule "initial" must define at least one term'
+    );
   });
 
   test("subrules", () => {
