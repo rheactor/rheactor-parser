@@ -98,6 +98,21 @@ For the `parser.rule()` method, terms like _strings_ mean a _reference_ to other
 
 Furthermore, when using an _array of terms_, parsing will only be satisfied if all terms are satisfied for this rule at the same time.
 
+Also, we often need to define a lot of tokens using `parser.tokens(...tokens)` (_pluralized version_). Look the following code:
+
+```ts
+parser.token("+");
+parser.token("-");
+parser.token("*", "x");
+```
+
+In the above example, we can combine the `+` and `-` _tokens_, as it is _as is_, but we need to keep the `*` apart, as it has a different definition.
+
+```ts
+parser.tokens("+", "-");
+parser.token("*", "x");
+```
+
 Now let's go a little further.
 
 Between _each term_ of the rules, a possible existence of the _whitespace_ is automatically consumed by default, but not captured.

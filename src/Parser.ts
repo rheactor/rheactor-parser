@@ -60,6 +60,12 @@ export class Parser {
     );
   }
 
+  public tokens(...tokens: string[]): void {
+    for (const token of tokens) {
+      this.token(token);
+    }
+  }
+
   public rule(name: string, terms: RuleTerm, transform?: RuleTransformer) {
     this.rulePush(name, terms, transform, RuleSeparatorMode.OPTIONAL);
   }

@@ -2,12 +2,7 @@ import { Parser } from "@/Parser";
 
 const parser = new Parser();
 
-parser.token("+");
-parser.token("-");
-parser.token("*");
-parser.token("/");
-parser.token("(");
-parser.token(")");
+parser.tokens("+", "-", "*", "/", "(", ")");
 
 parser.rule("expression", ["term", "+", "expression"], (a, b) => a + b);
 parser.rule("expression", ["term", "-", "expression"], (a, b) => a - b);

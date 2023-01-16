@@ -54,6 +54,12 @@ describe("Parser class", () => {
       parser.token("test");
       parser.token("test");
     }).toThrow('token "test" already defined');
+
+    expect(() => {
+      const parser = new Parser();
+
+      parser.tokens("test", "test");
+    }).toThrow('token "test" already defined');
   });
 
   test("token must be declared before rules", () => {
@@ -275,8 +281,7 @@ describe("Parser class", () => {
   test("recursions must be avoided, but in some cases it is need", () => {
     const parser = new Parser();
 
-    parser.token("+");
-    parser.token("*");
+    parser.tokens("+", "*");
 
     parser.rule("expression", ["term", "+", "expression"], (a, b) => a + b);
     parser.rule("expression", "term");
@@ -377,6 +382,17 @@ describe("README.me examples", () => {
 
     expect(parser.parse("1+2")).toStrictEqual(["1", "2"]);
     expect(parser.parse("1 + 2")).toStrictEqual(["1", "2"]);
+  });
+
+  test("readme: defining multiple tokens", () => {
+    const parser = new Parser();
+
+    parser.tokens("+", "-");
+    parser.token("*", "x");
+
+    parser.rule("example", [/\d/u, "+", /\d/u, "-", /\d/u, "*", /\d/u]);
+
+    expect(parser.parse("1+2-3x4")).toStrictEqual(["1", "2", "3", "4"]);
   });
 
   test("readme: defining a different separator", () => {
