@@ -6,7 +6,7 @@ import {
   separatorToken,
   separatorWhitespace,
   type Rule,
-  type RuleTerm,
+  type RuleTerms,
   type RuleTransformer,
   type Token,
   type TokenIdentifier,
@@ -15,14 +15,22 @@ import {
 
 import { ParserConsumer } from "@/ParserConsumer";
 
+interface ParserOptions {
+  ruleInitial?: string;
+}
+
 export class Parser {
   public readonly rulesMap = new Map<string, Rule[]>();
+
+  public ruleInitial: string | undefined;
 
   public readonly tokensMap = new Map<TokenIdentifier, TokenList>([
     [separatorToken, [regexpSticky(separatorWhitespace)]],
   ]);
 
-  public constructor(public ruleInitial?: string) {}
+  public constructor(options?: ParserOptions) {
+    this.ruleInitial = options?.ruleInitial;
+  }
 
   public separator(token: Token | false) {
     if (token === false) {
@@ -67,13 +75,13 @@ export class Parser {
     }
   }
 
-  public rule(name: string, terms: RuleTerm, transform?: RuleTransformer) {
+  public rule(name: string, terms: RuleTerms, transform?: RuleTransformer) {
     this.rulePush(name, terms, transform, RuleSeparatorMode.OPTIONAL);
   }
 
   public ruleStrict(
     name: string,
-    terms: RuleTerm,
+    terms: RuleTerms,
     transform?: RuleTransformer
   ) {
     this.rulePush(name, terms, transform, RuleSeparatorMode.DISALLOWED);
@@ -81,7 +89,7 @@ export class Parser {
 
   public ruleSeparated(
     name: string,
-    terms: RuleTerm,
+    terms: RuleTerms,
     transform?: RuleTransformer
   ) {
     this.rulePush(name, terms, transform, RuleSeparatorMode.MANDATORY);
@@ -97,7 +105,7 @@ export class Parser {
 
   public rulePush(
     name: string,
-    terms: RuleTerm,
+    terms: RuleTerms,
     transform: RuleTransformer | undefined,
     separatorMode: RuleSeparatorMode
   ) {

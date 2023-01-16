@@ -217,7 +217,7 @@ describe("Parser class", () => {
   });
 
   test("subrules with default transformations", () => {
-    const parser = new Parser("initial");
+    const parser = new Parser({ ruleInitial: "initial" });
 
     parser.token("a");
     parser.rule("subrule", [/b/u]);

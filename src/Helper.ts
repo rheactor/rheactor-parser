@@ -7,7 +7,7 @@ export type TokenList = Array<RegExp | string>;
 
 export type TokenIdentifier = string | symbol;
 
-export type RuleTerm =
+export type RuleTerms =
   | Array<RegExp | TokenIdentifier | null>
   | RegExp
   | TokenIdentifier
@@ -22,7 +22,7 @@ export const enum RuleSeparatorMode {
 }
 
 export interface Rule {
-  terms: Array<ArrayUnwrap<RuleTerm>>;
+  terms: Array<ArrayUnwrap<RuleTerms>>;
   separatorMode?: RuleSeparatorMode;
   transform?: RuleTransformer;
 }
