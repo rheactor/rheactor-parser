@@ -307,6 +307,17 @@ describe("Parser class", () => {
     expect(parser.parse("1*2*3*4*5*6*7*8*9")).toBe(362880);
   });
 
+  test("recursions with sum but invalid", () => {
+    const parser = new Parser();
+
+    parser.token("+");
+
+    parser.rule("sum", ["number", "+", "sum"], (a, b) => a + b);
+    parser.rule("number", /\d/u, (d) => Number(d));
+
+    expect(() => parser.parse("1")).toThrow('unexpected "1" at offset 0');
+  });
+
   test("captures none-to-multiples groups", () => {
     const parser = new Parser();
 
@@ -428,5 +439,30 @@ describe("README.me examples", () => {
     expect(parser.parse("1+2")).toStrictEqual(["1", "2"]);
     expect(parser.parse("1 + 2")).toStrictEqual(["1", "2"]);
     expect(() => parser.parse("1+ 2")).toThrow('unexpected " " at offset 2');
+  });
+
+  test("readme: recursive sum, bad definition", () => {
+    const parser = new Parser();
+
+    parser.token("+");
+
+    parser.rule("sum", ["number", "+", "sum"], (a, b) => a + b);
+    parser.rule("number", /\d/u, (d) => Number(d));
+
+    expect(() => parser.parse("1+2+3+4+5")).toThrow(
+      'unexpected "1" at offset 0'
+    );
+  });
+
+  test("readme: recursive sum, fixed", () => {
+    const parser = new Parser();
+
+    parser.token("+");
+
+    parser.rule("sum", ["number", "+", "sum"], (a, b) => a + b);
+    parser.rule("sum", ["number"]);
+    parser.rule("number", /\d/u, (d) => Number(d));
+
+    expect(parser.parse("1+2+3+4+5")).toBe(15);
   });
 });

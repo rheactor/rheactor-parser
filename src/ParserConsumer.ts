@@ -58,6 +58,10 @@ export class ParserConsumer {
         throw new Error(
           `unexpected "${inputPosition}" at offset ${errorOffset}`
         );
+      } else if (consume === undefined) {
+        throw new Error(
+          `unexpected "${matchAny(this.input)?.[0]}" at offset 0`
+        );
       }
     } else if (this.offsetLead === undefined) {
       throw new Error(`unexpected empty input`);
@@ -115,10 +119,12 @@ export class ParserConsumer {
     const rules = this.parser.rulesMap.get(name)!;
 
     rule: for (const rule of rules) {
+      const termsLength = rule.terms.length;
+
       let matches: ParserConsumerResult["matches"] | null;
       let offset = offsetIn;
 
-      for (let termIndex = 0; termIndex < rule.terms.length; termIndex++) {
+      for (let termIndex = 0; termIndex < termsLength; termIndex++) {
         const term = rule.terms[termIndex];
 
         try {

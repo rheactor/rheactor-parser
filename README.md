@@ -164,3 +164,39 @@ As the _first way_ for the `example` rule is a _strict rule_ (that is, it does n
 While the _second way_ requires separation between the terms, and then it can consume `1 + 2`.
 
 And finally, it is possible to notice that when using `1+ 2` as input, there will be a parsing failure, since none of the defined rules will be able to consume it.
+
+Well, rules can be recursive. That means it can point to itself, but that needs to at least make sense.
+The parser is smart enough to detect infinite loops.
+
+So, look closely at the rule below:
+
+```ts
+const parser = new Parser();
+
+parser.token("+");
+
+parser.rule("sum", ["number", "+", "sum"], (a, b) => a + b);
+parser.rule("number", /\d/, (d) => Number(d));
+
+console.log(parser.parse("1+2+3+4+5")); // Error?
+```
+
+Well, it seems to make perfect sense. Correct? **But no!**
+
+If you look again, you'll notice that the `sum` rule needs to have the terms `number + sum`.
+That is, although it depends on itself, it will never be possible to determine its output,
+since `sum` does not have a viable alternative for when the third term (`sum`) cannot be resolved.
+
+```ts
+const parser = new Parser();
+
+parser.token("+");
+
+parser.rule("sum", ["number", "+", "sum"], (a, b) => a + b);
+parser.rule("sum", ["number"]);
+parser.rule("number", /\d/u, (d) => Number(d));
+
+console.log(parser.parse("1+2+3+4+5")); // 15
+```
+
+Now yes! Note that when `sum` can no longer combine the terms `number + sum`, it will fallback on a `number` only.
