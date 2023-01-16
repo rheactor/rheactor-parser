@@ -52,4 +52,26 @@ export const getKeywordName = (keyword: KeywordIdentifier): string =>
     ? keyword.description ?? keyword.toString()
     : keyword;
 
+export const hasCircularPath = (path: string[]): boolean => {
+  if (path.length < 2) {
+    return false;
+  }
+
+  const pathLastIndex = path.length - 1;
+  const pathLast = path[pathLastIndex]!;
+  const pathCircularIndex = path.lastIndexOf(pathLast, pathLastIndex - 1);
+
+  if (pathCircularIndex === -1) {
+    return false;
+  }
+
+  const sequenceLeft = path.slice(
+    pathCircularIndex - (pathLastIndex - pathCircularIndex - 1),
+    pathCircularIndex
+  );
+  const sequenceRight = path.slice(pathCircularIndex + 1, -1);
+
+  return sequenceLeft.join() === sequenceRight.join();
+};
+
 export class MandatorySeparatorError extends Error {}

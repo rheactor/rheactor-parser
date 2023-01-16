@@ -1,5 +1,6 @@
 import {
   getKeywordName,
+  hasCircularPath,
   isKeywordIdentifier,
   MandatorySeparatorError,
   match,
@@ -106,8 +107,12 @@ export class ParserConsumer {
   private consumeRule(
     name: string,
     offsetIn = 0,
-    path = [name]
+    path: string[] = [name]
   ): ParserConsumerResult | undefined {
+    if (hasCircularPath(path)) {
+      return undefined;
+    }
+
     const rules = this.parser.rules.get(name)!;
 
     rule: for (const rule of rules) {
@@ -173,10 +178,8 @@ export class ParserConsumer {
           }
 
           if (typeof term === "string" && this.parser.rules.has(term)) {
-            if (termIndex === 0) {
-              if (term === name || path.includes(term)) {
-                continue rule;
-              }
+            if (termIndex === 0 && term === name) {
+              continue rule;
             }
 
             const consumeRule =
@@ -184,9 +187,7 @@ export class ParserConsumer {
                 ? this.consumeRule(term, offset, [...path, term])
                 : this.consumeRule(term, offset);
 
-            if (consumeRule === undefined) {
-              this.offsetLead = Math.max(offset, this.offsetLead ?? 0);
-            } else {
+            if (consumeRule !== undefined) {
               if (Array.isArray(matches)) {
                 matches.push(consumeRule);
               } else if (matches) {

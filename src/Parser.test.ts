@@ -260,6 +260,32 @@ describe("Parser class", () => {
     expect(parser.parse("ok")).toBe("ok");
   });
 
+  test("recursions must be avoided, but in some cases it is need", () => {
+    const parser = new Parser();
+
+    parser.keyword("+");
+    parser.keyword("*");
+
+    parser.rule("expression", ["term", "+", "expression"], ([a, b]) => a + b);
+    parser.rule("expression", "term");
+
+    parser.rule("term", ["number", "*", "term"], ([a, b]) => a * b);
+    parser.rule("term", "number");
+
+    parser.rule("number", /\d/u, (number: number) => Number(number));
+
+    expect(parser.parse("1+2")).toBe(3);
+    expect(parser.parse("2*3")).toBe(6);
+    expect(parser.parse("2*3+1")).toBe(7);
+    expect(parser.parse("1+2*3")).toBe(7);
+    expect(parser.parse("2*3+1+2")).toBe(9);
+    expect(parser.parse("2*3+1+2*3")).toBe(13);
+    expect(parser.parse("2*3+1+2*3+1")).toBe(14);
+    expect(parser.parse("2*3*2+1+2*3+1")).toBe(20);
+    expect(parser.parse("1+2*3+4+5*6*7+8+9")).toBe(238);
+    expect(parser.parse("1*2*3*4*5*6*7*8*9")).toBe(362880);
+  });
+
   test("captures none-to-multiples groups", () => {
     const parser = new Parser();
 
