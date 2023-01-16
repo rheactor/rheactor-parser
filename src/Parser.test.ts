@@ -42,7 +42,7 @@ describe("Parser class", () => {
 
     parser.rule(
       "statement",
-      [/(t)(e)(s)(t)/u],
+      [/((t)(e)(s)(t))/u],
       ([test, t, e, s, t2]: string[]) => [test, t, e, s, t2]
     );
 
@@ -228,5 +228,21 @@ describe("Parser class", () => {
     expect(parser.parse("a b")).toBe("b");
     expect(parser.parse("ab")).toBe("b");
     expect(() => parser.parse("ac")).toThrow('unexpected "c" at offset 1');
+  });
+
+  test("readme: example 1", () => {
+    const parser = new Parser();
+
+    parser.rule("example", /example/u);
+
+    expect(parser.parse("example")).toBe("example");
+  });
+
+  test("readme: example 2", () => {
+    const parser = new Parser();
+
+    parser.rule("example", /(\d)\+(\d)/u);
+
+    expect(parser.parse("1+2")).toStrictEqual(["1", "2"]);
   });
 });

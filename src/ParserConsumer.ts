@@ -116,10 +116,12 @@ export class ParserConsumer {
             if (Array.isArray(matches)) {
               matches.push(...termResult);
             } else if (termResult.length > 1) {
+              const [, ...termCaptured] = termResult;
+
               if (matches) {
-                matches = [matches, ...termResult];
+                matches = [matches, ...termCaptured];
               } else {
-                matches = [...termResult];
+                matches = [...termCaptured];
               }
             } else {
               [matches] = termResult;
