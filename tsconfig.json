@@ -30,6 +30,6 @@
     "paths": { "@/*": ["./src/*"] }
   },
 
-  "include": ["./.env.d.ts", "./src/**/*.ts"],
+  "include": ["./src/**/*.ts"],
   "exclude": ["./dist"]
 }

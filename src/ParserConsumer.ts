@@ -15,7 +15,7 @@ import { type Parser } from "@/Parser";
 import { ParserConsumerResult } from "@/ParserConsumerResult";
 
 export class ParserConsumer {
-  public offsetLead: number | undefined;
+  private offsetLead: number | undefined;
 
   public constructor(public parser: Parser, public input: string) {}
 
@@ -105,7 +105,8 @@ export class ParserConsumer {
 
   private consumeRule(
     name: string,
-    offsetIn = 0
+    offsetIn = 0,
+    path = [name]
   ): ParserConsumerResult | undefined {
     const rules = this.parser.rules.get(name)!;
 
@@ -166,7 +167,16 @@ export class ParserConsumer {
           }
 
           if (typeof term === "string" && this.parser.rules.has(term)) {
-            const consumeRule = this.consumeRule(term, offset);
+            if (termIndex === 0) {
+              if (term === name || path.includes(term)) {
+                continue rule;
+              }
+            }
+
+            const consumeRule =
+              offsetIn === offset
+                ? this.consumeRule(term, offset, [...path, term])
+                : this.consumeRule(term, offset);
 
             if (consumeRule === undefined) {
               this.offsetLead = Math.max(offset, this.offsetLead ?? 0);

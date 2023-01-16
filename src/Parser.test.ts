@@ -230,6 +230,38 @@ describe("Parser class", () => {
     expect(parser.parse(" aa")).toStrictEqual(["a", "a"]);
   });
 
+  test("recursions must be avoided", () => {
+    const parser = new Parser("initial");
+
+    parser.rule("initial", "initial");
+    parser.rule("initial", /ok/u);
+
+    expect(parser.parse("ok")).toBe("ok");
+  });
+
+  test("recursions must be avoided, except if not first", () => {
+    const parser = new Parser("initial");
+
+    parser.rule("initial", [/1/u, "initial", "initial"]);
+    parser.rule("initial", "initial");
+    parser.rule("initial", /1/u);
+
+    expect(parser.parse("111")).toStrictEqual(["1", "1", "1"]);
+  });
+
+  test("recursions must be avoided, even when it is deeper", () => {
+    const parser = new Parser("initial");
+
+    parser.rule("initial", "b");
+    parser.rule("initial", /ok/u);
+    parser.rule("b", "c");
+    parser.rule("c", "initial");
+
+    expect(parser.parse("ok")).toBe("ok");
+  });
+});
+
+describe("README.me examples", () => {
   test("readme: basic example", () => {
     const parser = new Parser();
 
