@@ -34,3 +34,8 @@ parser.rule("example", /(\d)\+(\d)/);
 
 console.log(parser.parse("1+2")); // [ "1", "2" ]
 ```
+
+Note that when creating _groups_ in regular expressions, only the inputs captured by the groups will be part of the output.
+However, if you want to capture all the value captured originally you must wrap it in a larger group (eg. `/((\d)\+(\d))/`).
+
+Remember that if only one group is captured (eg. `/(\d)\+\d/` for `1+2`), it will be returned as a string instead of an array (eg. `"1"`).

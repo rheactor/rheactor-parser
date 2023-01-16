@@ -245,4 +245,20 @@ describe("Parser class", () => {
 
     expect(parser.parse("1+2")).toStrictEqual(["1", "2"]);
   });
+
+  test("readme: example 2-b", () => {
+    const parser = new Parser();
+
+    parser.rule("example", /((\d)\+(\d))/u);
+
+    expect(parser.parse("1+2")).toStrictEqual(["1+2", "1", "2"]);
+  });
+
+  test("readme: example 2-c", () => {
+    const parser = new Parser();
+
+    parser.rule("example", /(\d)\+\d/u);
+
+    expect(parser.parse("1+2")).toBe("1");
+  });
 });

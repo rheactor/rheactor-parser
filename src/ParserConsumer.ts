@@ -120,6 +120,8 @@ export class ParserConsumer {
 
               if (matches) {
                 matches = [matches, ...termCaptured];
+              } else if (termCaptured.length === 1) {
+                [matches] = termCaptured;
               } else {
                 matches = [...termCaptured];
               }
