@@ -47,7 +47,7 @@ Now let's assume you want to sum the digits in fact. In this case, you can trans
 ```ts
 const parser = new Parser();
 
-parser.rule("example", /(\d)\+(\d)/, ([a, b]) => Number(a) + Number(b));
+parser.rule("example", /(\d)\+(\d)/, (a, b) => Number(a) + Number(b));
 
 console.log(parser.parse("1+2")); // 3
 ```

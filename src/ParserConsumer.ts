@@ -32,7 +32,9 @@ export class ParserConsumer {
           : matched
       );
 
-      return consume.rule.transform?.(matchesTransformed) ?? matchesTransformed;
+      return (
+        consume.rule.transform?.(...matchesTransformed) ?? matchesTransformed
+      );
     }
 
     if (consume.matches instanceof ParserConsumerResult) {

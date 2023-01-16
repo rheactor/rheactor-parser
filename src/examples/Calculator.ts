@@ -9,12 +9,12 @@ parser.keyword("/");
 parser.keyword("(");
 parser.keyword(")");
 
-parser.rule("expression", ["term", "+", "expression"], ([a, b]) => a + b);
-parser.rule("expression", ["term", "-", "expression"], ([a, b]) => a - b);
+parser.rule("expression", ["term", "+", "expression"], (a, b) => a + b);
+parser.rule("expression", ["term", "-", "expression"], (a, b) => a - b);
 parser.rule("expression", "term");
 
-parser.rule("term", ["factor", "*", "term"], ([a, b]) => a * b);
-parser.rule("term", ["factor", "/", "term"], ([a, b]) => a / b);
+parser.rule("term", ["factor", "*", "term"], (a, b) => a * b);
+parser.rule("term", ["factor", "/", "term"], (a, b) => a / b);
 parser.rule("term", "factor");
 
 parser.rule("factor", "number");
