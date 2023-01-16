@@ -1,5 +1,5 @@
 import {
-  getTokenName,
+  getTokenIdentifier,
   isRegexpTextOnly,
   matchIdentifier,
   regexpSticky,
@@ -7,9 +7,9 @@ import {
   separatorToken,
   separatorWhitespace,
   type RuleTerms,
-  type Token,
   type TokenIdentifier,
-  type TokenList,
+  type TokenTerms,
+  type TokenTermsArray,
 } from "@/Helper";
 
 import { ParserConsumer } from "@/ParserConsumer";
@@ -24,7 +24,7 @@ export class Parser {
 
   public ruleInitial: string | undefined;
 
-  public readonly tokensMap = new Map<TokenIdentifier, TokenList>([
+  public readonly tokensMap = new Map<TokenIdentifier, TokenTermsArray>([
     [separatorToken, [regexpSticky(separatorWhitespace)]],
   ]);
 
@@ -32,40 +32,42 @@ export class Parser {
     this.ruleInitial = options?.ruleInitial;
   }
 
-  public separator(token: Token | false) {
-    if (token === false) {
+  public separator(terms: TokenTerms | false) {
+    if (terms === false) {
       this.tokensMap.delete(separatorToken);
 
       return;
     }
 
-    this.token(separatorToken, token);
+    this.token(separatorToken, terms);
   }
 
-  public token(name: string): void;
+  public token(identifier: string): void;
 
-  public token(name: TokenIdentifier, token: Token): void;
+  public token(identifier: TokenIdentifier, terms: TokenTerms): void;
 
-  public token(name: TokenIdentifier, token?: Token): void {
-    const tokenName = getTokenName(name);
+  public token(identifier: TokenIdentifier, terms?: TokenTerms): void {
+    const tokenIdentifier = getTokenIdentifier(identifier);
 
-    if (this.tokensMap.has(tokenName)) {
-      throw new Error(`token "${tokenName}" already defined`);
+    if (this.tokensMap.has(tokenIdentifier)) {
+      throw new Error(`token "${tokenIdentifier}" already defined`);
     }
 
     if (this.rulesMap.size) {
-      throw new Error(`token "${tokenName}" must be declared before rules`);
+      throw new Error(
+        `token "${tokenIdentifier}" must be declared before rules`
+      );
     }
 
-    const terms = Array.isArray(token)
-      ? token
-      : token === undefined && typeof name === "string"
-      ? [name]
-      : [token!];
+    const tokenTerms = Array.isArray(terms)
+      ? terms
+      : terms === undefined && typeof identifier === "string"
+      ? [identifier]
+      : [terms!];
 
     this.tokensMap.set(
-      name,
-      terms.map((term) => {
+      identifier,
+      tokenTerms.map((term) => {
         if (term instanceof RegExp) {
           return isRegexpTextOnly(term.source)
             ? term.source
@@ -77,46 +79,48 @@ export class Parser {
     );
   }
 
-  public tokens(...tokens: string[]): void {
-    for (const token of tokens) {
-      this.token(token);
+  public tokens(...identifiers: string[]): void {
+    for (const identifier of identifiers) {
+      this.token(identifier);
     }
   }
 
-  public rule(name: string, terms: RuleTerms) {
-    return this.rulePush(name, terms, RuleSeparatorMode.OPTIONAL);
+  public rule(identifier: string, terms: RuleTerms) {
+    return this.rulePush(identifier, terms, RuleSeparatorMode.OPTIONAL);
   }
 
-  public ruleStrict(name: string, terms: RuleTerms) {
-    return this.rulePush(name, terms, RuleSeparatorMode.DISALLOWED);
+  public ruleStrict(identifier: string, terms: RuleTerms) {
+    return this.rulePush(identifier, terms, RuleSeparatorMode.DISALLOWED);
   }
 
-  public ruleSeparated(name: string, terms: RuleTerms) {
-    return this.rulePush(name, terms, RuleSeparatorMode.MANDATORY);
+  public ruleSeparated(identifier: string, terms: RuleTerms) {
+    return this.rulePush(identifier, terms, RuleSeparatorMode.MANDATORY);
   }
 
   public rulePush(
-    name: string,
+    identifier: string,
     terms: RuleTerms,
     separatorMode: RuleSeparatorMode
   ) {
-    if (!this.rulesMap.has(name)) {
-      this.rulesMap.set(name, []);
-      this.ruleInitial ??= name;
+    if (!this.rulesMap.has(identifier)) {
+      this.rulesMap.set(identifier, []);
+      this.ruleInitial ??= identifier;
 
-      if (this.tokensMap.has(name)) {
-        throw new Error(`rule is using name "${name}" reserved for token`);
+      if (this.tokensMap.has(identifier)) {
+        throw new Error(
+          `rule is using identifier "${identifier}" reserved for token`
+        );
       }
     }
 
     const ruleTerms = Array.isArray(terms) ? terms : [terms];
 
     if (!ruleTerms.length) {
-      throw new Error(`rule "${name}" must define at least one term`);
+      throw new Error(`rule "${identifier}" must define at least one term`);
     }
 
-    if (!matchIdentifier(name)) {
-      throw new Error(`rule "${name}" does not have a valid identifier`);
+    if (!matchIdentifier(identifier)) {
+      throw new Error(`rule "${identifier}" does not have a valid identifier`);
     }
 
     const rule = new ParserRule(
@@ -132,7 +136,7 @@ export class Parser {
       separatorMode
     );
 
-    this.rulesMap.get(name)!.push(rule);
+    this.rulesMap.get(identifier)!.push(rule);
 
     return rule;
   }

@@ -1,14 +1,14 @@
 import { hasCircularPath } from "@/Helper";
-import { getTokenName } from "./Helper";
+import { getTokenIdentifier } from "./Helper";
 
 describe("Helper functions", () => {
-  test("getTokenName", () => {
-    expect(getTokenName("example")).toBe("example");
-    expect(getTokenName(Symbol("example"))).toBe("example");
-    expect(getTokenName(Symbol(123))).toBe("123");
+  test("getTokenIdentifier", () => {
+    expect(getTokenIdentifier("example")).toBe("example");
+    expect(getTokenIdentifier(Symbol("example"))).toBe("example");
+    expect(getTokenIdentifier(Symbol(123))).toBe("123");
 
     // eslint-disable-next-line symbol-description
-    expect(getTokenName(Symbol())).toBe("Symbol()");
+    expect(getTokenIdentifier(Symbol())).toBe("Symbol()");
   });
 
   test("hasCircularPath", () => {

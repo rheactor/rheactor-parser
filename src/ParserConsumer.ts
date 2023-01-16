@@ -1,5 +1,5 @@
 import {
-  getTokenName,
+  getTokenIdentifier,
   hasCircularPath,
   isTokenIdentifier,
   MandatorySeparatorError,
@@ -71,8 +71,8 @@ export class ParserConsumer {
     return ParserConsumer.applyTransformation(consume!);
   }
 
-  private consumeToken(name: TokenIdentifier, offset: number): number {
-    const token = this.parser.tokensMap.get(name);
+  private consumeToken(identifier: TokenIdentifier, offset: number): number {
+    const token = this.parser.tokensMap.get(identifier);
 
     if (token) {
       for (const term of token) {
@@ -108,15 +108,15 @@ export class ParserConsumer {
   }
 
   private consumeRule(
-    name: string,
+    identifier: string,
     offsetIn = 0,
-    path: string[] = [name]
+    path: string[] = [identifier]
   ): ParserConsumerResult | undefined {
     if (hasCircularPath(path)) {
       return undefined;
     }
 
-    const rules = this.parser.rulesMap.get(name)!;
+    const rules = this.parser.rulesMap.get(identifier)!;
 
     rule: for (const rule of rules) {
       const termsLength = rule.terms.length;
@@ -185,7 +185,7 @@ export class ParserConsumer {
           }
 
           if (typeof term === "string" && this.parser.rulesMap.has(term)) {
-            if (termIndex === 0 && term === name) {
+            if (termIndex === 0 && term === identifier) {
               continue rule;
             }
 
@@ -230,11 +230,15 @@ export class ParserConsumer {
           continue;
         }
 
-        const termName = getTokenName(term!);
-        const ruleName =
-          rules.length > 1 ? `${name}[${rules.indexOf(rule)}]` : name;
+        const tokenIdentifier = getTokenIdentifier(term!);
+        const ruleIdentifier =
+          rules.length > 1
+            ? `${identifier}[${rules.indexOf(rule)}]`
+            : identifier;
 
-        throw new Error(`unknown term "${termName}" at rule "${ruleName}"`);
+        throw new Error(
+          `unknown term "${tokenIdentifier}" at rule "${ruleIdentifier}"`
+        );
       }
 
       if (rule.separatorMode !== RuleSeparatorMode.MANDATORY) {

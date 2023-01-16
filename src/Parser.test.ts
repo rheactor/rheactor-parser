@@ -71,13 +71,13 @@ describe("Parser class", () => {
     }).toThrow('token "b" must be declared before rules');
   });
 
-  test("rule is using name reserved name for token", () => {
+  test("rule is using identifier reserved for token", () => {
     expect(() => {
       const parser = new Parser();
 
       parser.token("test");
       parser.rule("test", []);
-    }).toThrow('rule is using name "test" reserved for token');
+    }).toThrow('rule is using identifier "test" reserved for token');
   });
 
   test("rule does not have a valid identifier", () => {

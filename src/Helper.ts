@@ -1,9 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Any = any;
 
-export type Token = RegExp | TokenList | string;
+export type TokenTerms = RegExp | TokenTermsArray | string;
 
-export type TokenList = Array<RegExp | string>;
+export type TokenTermsArray = Array<RegExp | string>;
 
 export type TokenIdentifier = string | symbol;
 
@@ -52,7 +52,7 @@ export const separatorWhitespace = /\s+/u;
 export const isTokenIdentifier = (x: unknown): x is TokenIdentifier =>
   typeof x === "string" || typeof x === "symbol";
 
-export const getTokenName = (token: TokenIdentifier): string =>
+export const getTokenIdentifier = (token: TokenIdentifier): string =>
   typeof token === "symbol" ? token.description ?? token.toString() : token;
 
 export const hasCircularPath = (path: string[]): boolean => {
