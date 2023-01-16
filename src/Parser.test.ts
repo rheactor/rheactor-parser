@@ -55,11 +55,9 @@ describe("Parser class", () => {
       parser.token("test");
     }).toThrow('token "test" already defined');
 
-    expect(() => {
-      const parser = new Parser();
-
-      parser.tokens("test", "test");
-    }).toThrow('token "test" already defined');
+    expect(() => new Parser().tokens("test", "test")).toThrow(
+      'token "test" already defined'
+    );
   });
 
   test("token must be declared before rules", () => {
@@ -78,6 +76,12 @@ describe("Parser class", () => {
       parser.token("test");
       parser.rule("test", []);
     }).toThrow('rule is using name "test" reserved for token');
+  });
+
+  test("rule does not have a valid identifier", () => {
+    expect(() => new Parser().rule("123", /123/u)).toThrow(
+      'rule "123" does not have a valid identifier'
+    );
   });
 
   test("parse with token", () => {
@@ -289,7 +293,7 @@ describe("Parser class", () => {
     parser.rule("term", ["number", "*", "term"], (a, b) => a * b);
     parser.rule("term", "number");
 
-    parser.rule("number", /\d/u, (number: number) => Number(number));
+    parser.rule("number", /\d/u, (d) => Number(d));
 
     expect(parser.parse("1+2")).toBe(3);
     expect(parser.parse("2*3")).toBe(6);

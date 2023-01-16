@@ -1,5 +1,6 @@
 import {
   getTokenName,
+  matchIdentifier,
   regexpSticky,
   RuleSeparatorMode,
   separatorToken,
@@ -113,6 +114,10 @@ export class Parser {
 
     if (!ruleTerms.length) {
       throw new Error(`rule "${name}" must define at least one term`);
+    }
+
+    if (!matchIdentifier(name)) {
+      throw new Error(`rule "${name}" does not have a valid identifier`);
     }
 
     this.rulesMap.get(name)!.push({
