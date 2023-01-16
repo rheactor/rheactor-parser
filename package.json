@@ -11,7 +11,7 @@
     "eslint": "eslint ./src",
     "eslint:fix": "eslint --fix ./src",
     "test": "jest",
-    "test:watch": "jest --bail=1 --watchAll",
+    "test:watch": "jest --watchAll",
     "test:coverage": "jest --coverage --watchAll"
   },
   "devDependencies": {

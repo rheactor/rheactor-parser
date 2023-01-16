@@ -42,7 +42,6 @@
     "no-console": "warn",
     "no-constant-binary-expression": "warn",
     "no-constructor-return": "warn",
-    "no-continue": "warn",
     "no-div-regex": "warn",
     "no-else-return": "warn",
     "no-empty-static-block": "warn",
@@ -162,7 +161,10 @@
       "warn",
       { "fixMixedExportsWithInlineTypeSpecifier": false }
     ],
-    "@typescript-eslint/consistent-type-imports": ["warn"],
+    "@typescript-eslint/consistent-type-imports": [
+      "warn",
+      { "fixStyle": "inline-type-imports" }
+    ],
     "@typescript-eslint/default-param-last": "warn",
     "@typescript-eslint/explicit-member-accessibility": "warn",
     "@typescript-eslint/member-ordering": "warn",
