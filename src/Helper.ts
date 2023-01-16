@@ -1,16 +1,16 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Any = any;
 
-export type Keyword = KeywordArray | RegExp | string;
+export type Token = RegExp | TokenList | string;
 
-export type KeywordArray = Array<RegExp | string>;
+export type TokenList = Array<RegExp | string>;
 
-export type KeywordIdentifier = string | symbol;
+export type TokenIdentifier = string | symbol;
 
 export type RuleTerm =
-  | Array<KeywordIdentifier | RegExp | null>
-  | KeywordIdentifier
+  | Array<RegExp | TokenIdentifier | null>
   | RegExp
+  | TokenIdentifier
   | null;
 
 export type RuleTransformer = (...args: Any[]) => void;
@@ -40,17 +40,15 @@ export const match = (regexp: RegExp, input: string, at = 0) => {
 
 export const matchAny = match.bind(null, /\d+|\w+|./uy);
 
-export const separatorSymbol = Symbol("separator");
+export const separatorToken = Symbol("separator");
 
 export const separatorWhitespace = /\s+/u;
 
-export const isKeywordIdentifier = (x: unknown): x is KeywordIdentifier =>
+export const isTokenIdentifier = (x: unknown): x is TokenIdentifier =>
   typeof x === "string" || typeof x === "symbol";
 
-export const getKeywordName = (keyword: KeywordIdentifier): string =>
-  typeof keyword === "symbol"
-    ? keyword.description ?? keyword.toString()
-    : keyword;
+export const getTokenName = (token: TokenIdentifier): string =>
+  typeof token === "symbol" ? token.description ?? token.toString() : token;
 
 export const hasCircularPath = (path: string[]): boolean => {
   if (path.length < 2) {

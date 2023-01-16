@@ -55,20 +55,20 @@ console.log(parser.parse("1+2")); // 3
 Note that so far we have a practical, albeit very simple, example of a rule we created.
 But this is not the ideal way for us to deal with all this, as it is quite inflexible.
 
-Let's introduce the concept of _keywords_.
+Let's introduce the concept of _tokens_.
 
-**Keywords** are like _rules_, however, they are never captured, which makes them much more performant if the goal is just to validate the input.
-They are defined through the method `parser.keyword(name, [terms])` and follow a pattern very similar to _rules_.
+**Tokens** are like _rules_, however, they are never captured, which makes them much more performant if the goal is just to validate the input.
+They are defined through the method `parser.token(name, [terms])` and follow a pattern very similar to _rules_.
 If no _term_ is defined then the _name_ itself will be used as the term.
 
-An important note is: _keywords_ must be defined _before_ any rule and can never be duplicated,
+An important note is: _tokens_ must be defined _before_ any rule and can never be duplicated,
 but can contain many different terms: be it _strings_ or _regular expressions_.
 
 ```ts
 const parser = new Parser();
 
-parser.keyword("+");
-parser.keyword("digits", /\d+/);
+parser.token("+");
+parser.token("digits", /\d+/);
 
 parser.rule("example", ["digits", "+", "digits"]);
 
@@ -76,7 +76,7 @@ console.log(parser.parse("1+2")); // undefined???
 ```
 
 Note that, although it _looks like_ a valid definition, the output will be `undefined` instead of `1+2`.
-This is because keywords are _never captured_, which makes them a valid option if the objective is just to validate input, as this makes it a more performant option.
+This is because tokens are _never captured_, which makes them a valid option if the objective is just to validate input, as this makes it a more performant option.
 
 If you want to _capture_ you still have to use _regular expressions_.
 
@@ -85,7 +85,7 @@ The following code would be ideal:
 ```ts
 const parser = new Parser();
 
-parser.keyword("+");
+parser.token("+");
 
 parser.rule("example", ["digits", "+", "digits"]);
 parser.rule("digits", /\d+/);
@@ -94,7 +94,7 @@ console.log(parser.parse("1+2")); // ["1", "2"]
 ```
 
 In the above code, note that we used _strings_ as terms of the rules.
-For the `parser.rule()` method, terms like _strings_ mean a _reference_ to other defined _rules_ or _keywords_, not a string literal.
+For the `parser.rule()` method, terms like _strings_ mean a _reference_ to other defined _rules_ or _tokens_, not a string literal.
 
 Furthermore, when using an _array of terms_, parsing will only be satisfied if all terms are satisfied for this rule at the same time.
 
@@ -132,7 +132,7 @@ Thus, we can define the following schema:
 ```ts
 const parser = new Parser();
 
-parser.keyword("+");
+parser.token("+");
 
 parser.ruleStrict("example", [/\d/, "+", /\d/]);
 parser.ruleSeparated("example", [/\d/, "+", /\d/]);

@@ -47,46 +47,46 @@ describe("Parser class", () => {
     expect(parser.parse("test")).toStrictEqual(["test", "t", "e", "s", "t"]);
   });
 
-  test("keyword is duplicated", () => {
+  test("token is duplicated", () => {
     expect(() => {
       const parser = new Parser();
 
-      parser.keyword("test");
-      parser.keyword("test");
-    }).toThrow('keyword "test" already defined');
+      parser.token("test");
+      parser.token("test");
+    }).toThrow('token "test" already defined');
   });
 
-  test("keyword must be declared before rules", () => {
+  test("token must be declared before rules", () => {
     expect(() => {
       const parser = new Parser();
 
       parser.rule("a", [/./u]);
-      parser.keyword("b");
-    }).toThrow('keyword "b" must be declared before rules');
+      parser.token("b");
+    }).toThrow('token "b" must be declared before rules');
   });
 
-  test("rule is using name reserved name for keyword", () => {
+  test("rule is using name reserved name for token", () => {
     expect(() => {
       const parser = new Parser();
 
-      parser.keyword("test");
+      parser.token("test");
       parser.rule("test", []);
-    }).toThrow('rule is using name "test" reserved for keyword');
+    }).toThrow('rule is using name "test" reserved for token');
   });
 
-  test("parse with keyword", () => {
+  test("parse with token", () => {
     const parser = new Parser();
 
-    parser.keyword("test");
+    parser.token("test");
     parser.rule("initial", ["test"]);
 
     expect(parser.parse("test")).toBeUndefined();
   });
 
-  test("parse with keyword, multiple terms", () => {
+  test("parse with token, multiple terms", () => {
     const parser = new Parser();
 
-    parser.keyword("test", ["test", "TEST", /123/u]);
+    parser.token("test", ["test", "TEST", /123/u]);
     parser.rule("initial", ["test"]);
 
     expect(parser.parse("test")).toBeUndefined();
@@ -94,11 +94,11 @@ describe("Parser class", () => {
     expect(parser.parse("123")).toBeUndefined();
   });
 
-  test("parse with keyword, as symbol", () => {
+  test("parse with token, as symbol", () => {
     const parser = new Parser();
     const kwTest = Symbol("test");
 
-    parser.keyword(kwTest, "test");
+    parser.token(kwTest, "test");
     parser.rule("initial", [kwTest]);
 
     expect(parser.parse("test")).toBeUndefined();
@@ -128,7 +128,7 @@ describe("Parser class", () => {
   test("separator as default", () => {
     const parser = new Parser();
 
-    parser.keyword("a");
+    parser.token("a");
     parser.rule("initial", ["a", "a"]);
 
     expect(parser.parse("a a")).toBeUndefined();
@@ -139,7 +139,7 @@ describe("Parser class", () => {
     const parser = new Parser();
 
     parser.separator(/-/u);
-    parser.keyword("a");
+    parser.token("a");
     parser.rule("initial", ["a", "a"]);
 
     expect(parser.parse("a-a")).toBeUndefined();
@@ -151,7 +151,7 @@ describe("Parser class", () => {
   test("rule strict must not accept separator between terms", () => {
     const parser = new Parser();
 
-    parser.keyword("a");
+    parser.token("a");
     parser.ruleStrict("initial", ["a", "a"]);
 
     expect(parser.parse("aa")).toBeUndefined();
@@ -161,7 +161,7 @@ describe("Parser class", () => {
   test("rule separated must requires all terms be separated", () => {
     const parser = new Parser();
 
-    parser.keyword("a");
+    parser.token("a");
     parser.ruleSeparated("initial", ["a", "a"]);
 
     expect(parser.parse("a a")).toBeUndefined();
@@ -171,7 +171,7 @@ describe("Parser class", () => {
   test("rule nullable", () => {
     const parser = new Parser();
 
-    parser.keyword("a");
+    parser.token("a");
     parser.rule("initial", null);
 
     expect(parser.parse("")).toBeUndefined();
@@ -180,7 +180,7 @@ describe("Parser class", () => {
   test("rule non-nullable", () => {
     const parser = new Parser();
 
-    parser.keyword("a");
+    parser.token("a");
     parser.rule("initial", ["a"]);
 
     expect(() => parser.parse("")).toThrow("unexpected empty input");
@@ -197,7 +197,7 @@ describe("Parser class", () => {
   test("subrules", () => {
     const parser = new Parser();
 
-    parser.keyword("a");
+    parser.token("a");
     parser.rule("initial", ["a", "subrule"]);
     parser.rule("subrule", ["a"]);
 
@@ -209,7 +209,7 @@ describe("Parser class", () => {
   test("subrules with default transformations", () => {
     const parser = new Parser("initial");
 
-    parser.keyword("a");
+    parser.token("a");
     parser.rule("subrule", [/b/u]);
     parser.rule("initial", ["a", "subrule"]);
 
@@ -221,7 +221,7 @@ describe("Parser class", () => {
   test("subrules with multiple matches", () => {
     const parser = new Parser();
 
-    parser.keyword("a");
+    parser.token("a");
     parser.rule(
       "initial",
       [/a/u, "subrule"],
@@ -275,8 +275,8 @@ describe("Parser class", () => {
   test("recursions must be avoided, but in some cases it is need", () => {
     const parser = new Parser();
 
-    parser.keyword("+");
-    parser.keyword("*");
+    parser.token("+");
+    parser.token("*");
 
     parser.rule("expression", ["term", "+", "expression"], (a, b) => a + b);
     parser.rule("expression", "term");
@@ -356,21 +356,21 @@ describe("README.me examples", () => {
     expect(parser.parse("1+2")).toBe(3);
   });
 
-  test("readme: defining keywords, but receiving undefined?", () => {
+  test("readme: defining tokens, but receiving undefined?", () => {
     const parser = new Parser();
 
-    parser.keyword("+");
-    parser.keyword("digits", /\d+/u);
+    parser.token("+");
+    parser.token("digits", /\d+/u);
 
     parser.rule("example", ["digits", "+", "digits"]);
 
     expect(parser.parse("1+2")).toBeUndefined();
   });
 
-  test("readme: defining keywords on right way", () => {
+  test("readme: defining tokens on right way", () => {
     const parser = new Parser();
 
-    parser.keyword("+");
+    parser.token("+");
 
     parser.rule("example", ["digits", "+", "digits"]);
     parser.rule("digits", /\d+/u);
@@ -400,7 +400,7 @@ describe("README.me examples", () => {
   test("readme: strict or separated rules", () => {
     const parser = new Parser();
 
-    parser.keyword("+");
+    parser.token("+");
 
     parser.ruleStrict("example", [/\d/u, "+", /\d/u]);
     parser.ruleSeparated("example", [/\d/u, "+", /\d/u]);

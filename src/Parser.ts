@@ -1,64 +1,62 @@
 import {
-  getKeywordName,
+  getTokenName,
   regexpSticky,
   RuleSeparatorMode,
-  separatorSymbol,
+  separatorToken,
   separatorWhitespace,
-  type Keyword,
-  type KeywordArray,
-  type KeywordIdentifier,
   type Rule,
   type RuleTerm,
   type RuleTransformer,
+  type Token,
+  type TokenIdentifier,
+  type TokenList,
 } from "@/Helper";
 
 import { ParserConsumer } from "@/ParserConsumer";
 
 export class Parser {
-  public readonly rules = new Map<string, Rule[]>();
+  public readonly rulesMap = new Map<string, Rule[]>();
 
-  public readonly keywords = new Map<KeywordIdentifier, KeywordArray>([
-    [separatorSymbol, [regexpSticky(separatorWhitespace)]],
+  public readonly tokensMap = new Map<TokenIdentifier, TokenList>([
+    [separatorToken, [regexpSticky(separatorWhitespace)]],
   ]);
 
   public constructor(public ruleInitial?: string) {}
 
-  public separator(keyword: Keyword | false) {
-    if (keyword === false) {
-      this.keywords.delete(separatorSymbol);
+  public separator(token: Token | false) {
+    if (token === false) {
+      this.tokensMap.delete(separatorToken);
 
       return;
     }
 
-    this.keyword(separatorSymbol, keyword);
+    this.token(separatorToken, token);
   }
 
-  public keyword(name: string): void;
+  public token(name: string): void;
 
-  public keyword(name: KeywordIdentifier, keyword: Keyword): void;
+  public token(name: TokenIdentifier, token: Token): void;
 
-  public keyword(name: KeywordIdentifier, keyword?: Keyword): void {
-    const keywordName = getKeywordName(name);
+  public token(name: TokenIdentifier, token?: Token): void {
+    const tokenName = getTokenName(name);
 
-    if (this.keywords.has(keywordName)) {
-      throw new Error(`keyword "${keywordName}" already defined`);
+    if (this.tokensMap.has(tokenName)) {
+      throw new Error(`token "${tokenName}" already defined`);
     }
 
-    if (this.rules.size) {
-      throw new Error(`keyword "${keywordName}" must be declared before rules`);
+    if (this.rulesMap.size) {
+      throw new Error(`token "${tokenName}" must be declared before rules`);
     }
 
-    const keywordTerms = Array.isArray(keyword)
-      ? keyword
-      : keyword === undefined && typeof name === "string"
+    const terms = Array.isArray(token)
+      ? token
+      : token === undefined && typeof name === "string"
       ? [name]
-      : [keyword!];
+      : [token!];
 
-    this.keywords.set(
+    this.tokensMap.set(
       name,
-      keywordTerms.map((keywordTerm) =>
-        keywordTerm instanceof RegExp ? regexpSticky(keywordTerm) : keywordTerm
-      )
+      terms.map((term) => (term instanceof RegExp ? regexpSticky(term) : term))
     );
   }
 
@@ -83,7 +81,7 @@ export class Parser {
   }
 
   public parse(input: string) {
-    if (this.rules.size === 0) {
+    if (this.rulesMap.size === 0) {
       throw new Error("no rule specified");
     }
 
@@ -96,12 +94,12 @@ export class Parser {
     transform: RuleTransformer | undefined,
     separatorMode: RuleSeparatorMode
   ) {
-    if (!this.rules.has(name)) {
-      this.rules.set(name, []);
+    if (!this.rulesMap.has(name)) {
+      this.rulesMap.set(name, []);
       this.ruleInitial ??= name;
 
-      if (this.keywords.has(name)) {
-        throw new Error(`rule is using name "${name}" reserved for keyword`);
+      if (this.tokensMap.has(name)) {
+        throw new Error(`rule is using name "${name}" reserved for token`);
       }
     }
 
@@ -111,7 +109,7 @@ export class Parser {
       throw new Error(`rule "${name}" must define at least one term`);
     }
 
-    this.rules.get(name)!.push({
+    this.rulesMap.get(name)!.push({
       transform,
       separatorMode,
       terms: ruleTerms.map((term) =>

@@ -1,14 +1,14 @@
 import {
-  getKeywordName,
+  getTokenName,
   hasCircularPath,
-  isKeywordIdentifier,
+  isTokenIdentifier,
   MandatorySeparatorError,
   match,
   matchAny,
   RuleSeparatorMode,
-  separatorSymbol,
+  separatorToken,
   type Any,
-  type KeywordIdentifier,
+  type TokenIdentifier,
 } from "@/Helper";
 import { type Rule } from "./Helper";
 
@@ -67,19 +67,19 @@ export class ParserConsumer {
     return ParserConsumer.applyTransformation(consume!);
   }
 
-  private consumeKeyword(name: KeywordIdentifier, offset: number): number {
-    const keyword = this.parser.keywords.get(name);
+  private consumeToken(name: TokenIdentifier, offset: number): number {
+    const token = this.parser.tokensMap.get(name);
 
-    if (keyword) {
-      for (const keywordTerm of keyword) {
-        if (keywordTerm instanceof RegExp) {
-          const termResult = match(keywordTerm, this.input, offset);
+    if (token) {
+      for (const term of token) {
+        if (term instanceof RegExp) {
+          const termResult = match(term, this.input, offset);
 
           if (termResult) {
             return termResult[0].length;
           }
-        } else if (this.input.startsWith(keywordTerm, offset)) {
-          return keywordTerm.length;
+        } else if (this.input.startsWith(term, offset)) {
+          return term.length;
         }
       }
     }
@@ -89,18 +89,15 @@ export class ParserConsumer {
 
   private consumeSeparator(rule: Rule, offset: number) {
     if (rule.separatorMode !== RuleSeparatorMode.DISALLOWED) {
-      const consumeKeyword = this.consumeKeyword(separatorSymbol, offset);
+      const consumeToken = this.consumeToken(separatorToken, offset);
 
-      if (consumeKeyword) {
-        this.offsetLead = Math.max(
-          offset + consumeKeyword,
-          this.offsetLead ?? 0
-        );
+      if (consumeToken) {
+        this.offsetLead = Math.max(offset + consumeToken, this.offsetLead ?? 0);
       } else if (rule.separatorMode === RuleSeparatorMode.MANDATORY) {
         throw new MandatorySeparatorError();
       }
 
-      return offset + consumeKeyword;
+      return offset + consumeToken;
     }
 
     return offset;
@@ -115,7 +112,7 @@ export class ParserConsumer {
       return undefined;
     }
 
-    const rules = this.parser.rules.get(name)!;
+    const rules = this.parser.rulesMap.get(name)!;
 
     rule: for (const rule of rules) {
       let matches: ParserConsumerResult["matches"] | null;
@@ -166,20 +163,20 @@ export class ParserConsumer {
           }
 
           continue rule;
-        } else if (isKeywordIdentifier(term)) {
-          if (this.parser.keywords.has(term)) {
-            const consumeKeyword = this.consumeKeyword(term, offset);
+        } else if (isTokenIdentifier(term)) {
+          if (this.parser.tokensMap.has(term)) {
+            const consumeToken = this.consumeToken(term, offset);
 
-            if (!consumeKeyword) {
+            if (!consumeToken) {
               continue rule;
             }
 
-            offset += consumeKeyword;
+            offset += consumeToken;
             this.offsetLead = Math.max(offset, this.offsetLead ?? 0);
             continue;
           }
 
-          if (typeof term === "string" && this.parser.rules.has(term)) {
+          if (typeof term === "string" && this.parser.rulesMap.has(term)) {
             if (termIndex === 0 && term === name) {
               continue rule;
             }
@@ -209,7 +206,7 @@ export class ParserConsumer {
           continue;
         }
 
-        const termName = getKeywordName(term!);
+        const termName = getTokenName(term!);
         const ruleName =
           rules.length > 1 ? `${name}[${rules.indexOf(rule)}]` : name;
 
