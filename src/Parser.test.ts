@@ -274,5 +274,15 @@ describe("Parser class", () => {
     parser.rule("digits", /\d+/u);
 
     expect(parser.parse("1+2")).toStrictEqual(["1", "2"]);
+    expect(parser.parse("1 + 2")).toStrictEqual(["1", "2"]);
+  });
+
+  test("readme: defining a different separator", () => {
+    const parser = new Parser();
+
+    parser.separator(/-/u);
+    parser.rule("example", [/\d/u, /\d/u]);
+
+    expect(parser.parse("1-2")).toStrictEqual(["1", "2"]);
   });
 });

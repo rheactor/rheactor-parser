@@ -125,6 +125,8 @@ export class ParserConsumer {
               } else {
                 matches = [...termCaptured];
               }
+            } else if (matches) {
+              matches = [matches, termResult[0]];
             } else {
               [matches] = termResult;
             }

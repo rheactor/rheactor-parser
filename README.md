@@ -92,3 +92,29 @@ parser.rule("digits", /\d+/);
 
 console.log(parser.parse("1+2")); // ["1", "2"]
 ```
+
+In the above code, note that we used _strings_ as terms of the rules.
+For the `parser.rule()` method, terms like _strings_ mean a _reference_ to other defined _rules_ or _keywords_, not a string literal.
+
+Furthermore, when using an _array of terms_, parsing will only be satisfied if all terms are satisfied for this rule at the same time.
+
+Now let's go a little further.
+
+Between _each term_ of the rules, a possible existence of the _whitespace_ is automatically consumed by default, but not captured.
+That is, parsing below would work perfectly, and we would have the same result:
+
+```ts
+console.log(parser.parse("1 + 2")); // ["1", "2"]
+```
+
+The default **separator** is considered to be any _whitespace_, _tabs_, or _line breaks_ (basically the same as `/\s+/`).
+You can change it or disable it simply using the `parser.separator(expression | null)` method.
+
+```ts
+const parser = new Parser();
+
+parser.separator(/-/);
+parser.rule("example", [/\d/, /\d/]);
+
+console.log(parser.parse("1-2")); // ["1", "2"]
+```
