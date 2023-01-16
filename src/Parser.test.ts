@@ -67,14 +67,6 @@ describe("Parser class", () => {
     }).toThrow('keyword "b" must be declared before rules');
   });
 
-  test("keyword does not have a valid identifier", () => {
-    expect(() => {
-      const parser = new Parser();
-
-      parser.keyword("123");
-    }).toThrow('keyword "123" does not have a valid identifier');
-  });
-
   test("rule is using name reserved name for keyword", () => {
     expect(() => {
       const parser = new Parser();
@@ -82,14 +74,6 @@ describe("Parser class", () => {
       parser.keyword("test");
       parser.rule("test", []);
     }).toThrow('rule is using name "test" reserved for keyword');
-  });
-
-  test("rule does not have a valid identifier", () => {
-    expect(() => {
-      const parser = new Parser();
-
-      parser.rule("123", []);
-    }).toThrow('rule "123" does not have a valid identifier');
   });
 
   test("parse with keyword", () => {
@@ -230,7 +214,7 @@ describe("Parser class", () => {
     expect(() => parser.parse("ac")).toThrow('unexpected "c" at offset 1');
   });
 
-  test("readme: example 1", () => {
+  test("readme: basic example", () => {
     const parser = new Parser();
 
     parser.rule("example", /example/u);
@@ -238,7 +222,7 @@ describe("Parser class", () => {
     expect(parser.parse("example")).toBe("example");
   });
 
-  test("readme: example 2", () => {
+  test("readme: regular expression capture", () => {
     const parser = new Parser();
 
     parser.rule("example", /(\d)\+(\d)/u);
@@ -246,7 +230,7 @@ describe("Parser class", () => {
     expect(parser.parse("1+2")).toStrictEqual(["1", "2"]);
   });
 
-  test("readme: example 2-b", () => {
+  test("readme: regular expression capturing via groups", () => {
     const parser = new Parser();
 
     parser.rule("example", /((\d)\+(\d))/u);
@@ -254,11 +238,41 @@ describe("Parser class", () => {
     expect(parser.parse("1+2")).toStrictEqual(["1+2", "1", "2"]);
   });
 
-  test("readme: example 2-c", () => {
+  test("readme: regular expression capturing a single group", () => {
     const parser = new Parser();
 
     parser.rule("example", /(\d)\+\d/u);
 
     expect(parser.parse("1+2")).toBe("1");
+  });
+
+  test("readme: applying transform to sum values", () => {
+    const parser = new Parser();
+
+    parser.rule("example", /(\d)\+(\d)/u, ([a, b]) => Number(a) + Number(b));
+
+    expect(parser.parse("1+2")).toBe(3);
+  });
+
+  test("readme: defining keywords, but receiving undefined?", () => {
+    const parser = new Parser();
+
+    parser.keyword("+");
+    parser.keyword("digits", /\d+/u);
+
+    parser.rule("example", ["digits", "+", "digits"]);
+
+    expect(parser.parse("1+2")).toBeUndefined();
+  });
+
+  test("readme: defining keywords on right way", () => {
+    const parser = new Parser();
+
+    parser.keyword("+");
+
+    parser.rule("example", ["digits", "+", "digits"]);
+    parser.rule("digits", /\d+/u);
+
+    expect(parser.parse("1+2")).toStrictEqual(["1", "2"]);
   });
 });

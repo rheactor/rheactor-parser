@@ -1,6 +1,5 @@
 import {
   getKeywordName,
-  matchIdentifier,
   regexpSticky,
   RuleSeparatorMode,
   separatorSymbol,
@@ -34,12 +33,6 @@ export class Parser {
 
   public keyword(name: KeywordIdentifier, keyword?: Keyword): void {
     const keywordName = getKeywordName(name);
-
-    if (!matchIdentifier(keywordName)) {
-      throw new Error(
-        `keyword "${keywordName}" does not have a valid identifier`
-      );
-    }
 
     if (this.keywords.has(keywordName)) {
       throw new Error(`keyword "${keywordName}" already defined`);
@@ -100,10 +93,6 @@ export class Parser {
     if (!this.rules.has(name)) {
       this.rules.set(name, []);
       this.ruleInitial ??= name;
-
-      if (!matchIdentifier(name)) {
-        throw new Error(`rule "${name}" does not have a valid identifier`);
-      }
 
       if (this.keywords.has(name)) {
         throw new Error(`rule is using name "${name}" reserved for keyword`);

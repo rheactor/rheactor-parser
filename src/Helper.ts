@@ -40,9 +40,6 @@ export const match = (regexp: RegExp, input: string, at = 0) => {
 
 export const matchAny = match.bind(null, /\d+|\w+|./uy);
 
-export const matchIdentifier = (input: string) =>
-  /^[a-z_][a-z0-9]*$/iu.test(input);
-
 export const separatorSymbol = Symbol("separator");
 
 export const separatorWhitespace = /\s+/u;
