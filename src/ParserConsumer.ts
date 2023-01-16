@@ -150,17 +150,19 @@ export class ParserConsumer {
             } else if (termResult.length > 1) {
               const [, ...termCaptured] = termResult;
 
-              if (matches) {
-                matches = [matches, ...termCaptured];
-              } else if (termCaptured.length === 1) {
-                [matches] = termCaptured;
+              if (matches === undefined || matches === null) {
+                if (termCaptured.length === 1) {
+                  [matches] = termCaptured;
+                } else {
+                  matches = [...termCaptured];
+                }
               } else {
-                matches = [...termCaptured];
+                matches = [matches, ...termCaptured];
               }
-            } else if (matches) {
-              matches = [matches, termResult[0]];
-            } else {
+            } else if (matches === undefined || matches === null) {
               [matches] = termResult;
+            } else {
+              matches = [matches, termResult[0]];
             }
 
             offset += termResult[0].length;
@@ -195,10 +197,10 @@ export class ParserConsumer {
             if (consumeRule !== undefined) {
               if (Array.isArray(matches)) {
                 matches.push(consumeRule);
-              } else if (matches) {
-                matches = [matches, consumeRule];
-              } else {
+              } else if (matches === undefined || matches === null) {
                 matches = consumeRule;
+              } else {
+                matches = [matches, consumeRule];
               }
 
               ({ offset } = consumeRule);

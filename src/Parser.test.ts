@@ -252,6 +252,48 @@ describe("Parser class", () => {
     expect(parser.parse(" aa")).toStrictEqual(["a", "a"]);
   });
 
+  test("consume zero token, that must not be confused with no match", () => {
+    const parser = new Parser();
+
+    parser.rule("initial", [/0/u, /1/u]);
+
+    expect(parser.parse("01")).toStrictEqual(["0", "1"]);
+  });
+
+  test("consume zero rule, that must not be confused with no match", () => {
+    const parser = new Parser();
+
+    parser.token("0");
+    parser.rule("initial", "0");
+
+    expect(parser.parse("0")).toBeUndefined();
+  });
+
+  test("consume rule with optional content must capture whitespace", () => {
+    const parser = new Parser();
+
+    parser.rule("initial", [/0?/u, /1/u]);
+
+    expect(parser.parse("1")).toStrictEqual(["", "1"]);
+  });
+
+  test("consume rule with optional content must capture whitespace, including next grouping term", () => {
+    const parser = new Parser();
+
+    parser.rule("initial", [/0?/u, /(1)(2)/u]);
+
+    expect(parser.parse("12")).toStrictEqual(["", "1", "2"]);
+  });
+
+  test("consume rule with optional content must capture whitespace, including subrules", () => {
+    const parser = new Parser();
+
+    parser.rule("initial", [/0?/u, "next"]);
+    parser.rule("next", /1/u);
+
+    expect(parser.parse("1")).toStrictEqual(["", "1"]);
+  });
+
   test("recursions must be avoided", () => {
     const parser = new Parser();
 
