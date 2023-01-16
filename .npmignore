@@ -1,5 +1,7 @@
 .github/
 
+src/examples/
+
 .eslintrc.json
 .gitignore
 .npmignore
