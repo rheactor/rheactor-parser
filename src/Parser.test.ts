@@ -285,4 +285,26 @@ describe("Parser class", () => {
 
     expect(parser.parse("1-2")).toStrictEqual(["1", "2"]);
   });
+
+  test("readme: disable separator explicity", () => {
+    const parser = new Parser();
+
+    parser.separator(false);
+    parser.rule("example", [/\d/u, /\d/u]);
+
+    expect(() => parser.parse("1 2")).toThrow('unexpected "1" at offset 0');
+  });
+
+  test("readme: strict or separated rules", () => {
+    const parser = new Parser();
+
+    parser.keyword("+");
+
+    parser.ruleStrict("example", [/\d/u, "+", /\d/u]);
+    parser.ruleSeparated("example", [/\d/u, "+", /\d/u]);
+
+    expect(parser.parse("1+2")).toStrictEqual(["1", "2"]);
+    expect(parser.parse("1 + 2")).toStrictEqual(["1", "2"]);
+    expect(() => parser.parse("1+ 2")).toThrow('unexpected "1" at offset 0');
+  });
 });

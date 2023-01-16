@@ -23,7 +23,13 @@ export class Parser {
 
   public constructor(public ruleInitial?: string) {}
 
-  public separator(keyword: Keyword) {
+  public separator(keyword: Keyword | false) {
+    if (keyword === false) {
+      this.keywords.delete(separatorSymbol);
+
+      return;
+    }
+
     this.keyword(separatorSymbol, keyword);
   }
 

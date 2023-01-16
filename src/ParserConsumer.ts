@@ -64,15 +64,19 @@ export class ParserConsumer {
   }
 
   private consumeKeyword(name: KeywordIdentifier, offsetIn: number): number {
-    for (const keywordTerm of this.parser.keywords.get(name)!) {
-      if (keywordTerm instanceof RegExp) {
-        const termResult = match(keywordTerm, this.input, offsetIn);
+    const keyword = this.parser.keywords.get(name);
 
-        if (termResult) {
-          return termResult[0].length;
+    if (keyword) {
+      for (const keywordTerm of keyword) {
+        if (keywordTerm instanceof RegExp) {
+          const termResult = match(keywordTerm, this.input, offsetIn);
+
+          if (termResult) {
+            return termResult[0].length;
+          }
+        } else if (this.input.startsWith(keywordTerm, offsetIn)) {
+          return keywordTerm.length;
         }
-      } else if (this.input.startsWith(keywordTerm, offsetIn)) {
-        return keywordTerm.length;
       }
     }
 

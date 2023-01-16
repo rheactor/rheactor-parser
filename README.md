@@ -108,7 +108,7 @@ console.log(parser.parse("1 + 2")); // ["1", "2"]
 ```
 
 The default **separator** is considered to be any _whitespace_, _tabs_, or _line breaks_ (basically the same as `/\s+/`).
-You can change it or disable it simply using the `parser.separator(expression | null)` method.
+You can change it or disable it simply using the `parser.separator(expression | false)` method.
 
 ```ts
 const parser = new Parser();
@@ -118,3 +118,34 @@ parser.rule("example", [/\d/, /\d/]);
 
 console.log(parser.parse("1-2")); // ["1", "2"]
 ```
+
+However, this option will cause all expected separations to need to be defined explicitly, which may not be ideal for most cases.
+
+For this, there are **two additional methods** that we can use:
+
+- `parser.ruleStrict(name, terms)`: this method disallows any separation between terms unless a specific term for it is explicitly stated;
+
+- `parser.ruleSeparated(name, terms)`: while this method requires that there be at least one separation between the terms.
+
+Thus, we can define the following schema:
+
+```ts
+const parser = new Parser();
+
+parser.keyword("+");
+
+parser.ruleStrict("example", [/\d/, "+", /\d/]);
+parser.ruleSeparated("example", [/\d/, "+", /\d/]);
+
+console.log(parser.parse("1+2")); // ["1", "2"]
+console.log(parser.parse("1 + 2")); // ["1", "2"]
+console.log(parser.parse("1+ 2")); // Error
+```
+
+In the code above you will notice _two important things_: the first is that we have _two rules_ with the _same name_.
+This is _valid_, and it means that if the first rule fails to be consumed, then the second rule will try to consume.
+
+As the _first way_ for the `example` rule is a _strict rule_ (that is, it does not allow separation), then it will be able to consume `1+2`.
+While the _second way_ requires separation between the terms, and then it can consume `1 + 2`.
+
+And finally, it is possible to notice that when using `1+ 2` as input, there will be a parsing failure, since none of the defined rules will be able to consume it.
