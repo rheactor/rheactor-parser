@@ -24,7 +24,7 @@ describe("Parser class", () => {
   test("rule transform, returning 123", () => {
     const parser = new Parser();
 
-    parser.rule("statement", /test/u, () => 123);
+    parser.rule("statement", /test/u).transform(() => 123);
 
     expect(parser.parse("test")).toBe(123);
   });
@@ -32,7 +32,7 @@ describe("Parser class", () => {
   test("rule transform, returning own", () => {
     const parser = new Parser();
 
-    parser.rule("statement", /test/u, (own: string) => own);
+    parser.rule("statement", /test/u).transform((own: string) => own);
 
     expect(parser.parse("test")).toBe("test");
   });
@@ -40,9 +40,11 @@ describe("Parser class", () => {
   test("rule transform, multiple groups", () => {
     const parser = new Parser();
 
-    parser.rule("statement", [/((t)(e)(s)(t))/u], (test, t, e, s, t2) => {
-      return [test, t, e, s, t2];
-    });
+    parser
+      .rule("statement", [/((t)(e)(s)(t))/u])
+      .transform((test, t, e, s, t2) => {
+        return [test, t, e, s, t2];
+      });
 
     expect(parser.parse("test")).toStrictEqual(["test", "t", "e", "s", "t"]);
   });
@@ -232,11 +234,9 @@ describe("Parser class", () => {
     const parser = new Parser();
 
     parser.token("a");
-    parser.rule(
-      "initial",
-      [/a/u, "subrule"],
-      (a, [b, c, [d, e]]) => a + b + c + d + e
-    );
+    parser
+      .rule("initial", [/a/u, "subrule"])
+      .transform((a, [b, c, [d, e]]) => a + b + c + d + e);
     parser.rule("subrule", [/b/u, /(c)/u, /((d)(e))/u]);
 
     expect(parser.parse("abcde")).toBe("abcde");
@@ -329,13 +329,15 @@ describe("Parser class", () => {
 
     parser.tokens("+", "*");
 
-    parser.rule("expression", ["term", "+", "expression"], (a, b) => a + b);
+    parser
+      .rule("expression", ["term", "+", "expression"])
+      .transform((a, b) => a + b);
     parser.rule("expression", "term");
 
-    parser.rule("term", ["number", "*", "term"], (a, b) => a * b);
+    parser.rule("term", ["number", "*", "term"]).transform((a, b) => a * b);
     parser.rule("term", "number");
 
-    parser.rule("number", /\d/u, (d) => Number(d));
+    parser.rule("number", /\d/u).transform((d) => Number(d));
 
     expect(parser.parse("1+2")).toBe(3);
     expect(parser.parse("2*3")).toBe(6);
@@ -354,8 +356,8 @@ describe("Parser class", () => {
 
     parser.token("+");
 
-    parser.rule("sum", ["number", "+", "sum"], (a, b) => a + b);
-    parser.rule("number", /\d/u, (d) => Number(d));
+    parser.rule("sum", ["number", "+", "sum"]).transform((a, b) => a + b);
+    parser.rule("number", /\d/u).transform((d) => Number(d));
 
     expect(() => parser.parse("1")).toThrow('unexpected "1" at offset 0');
   });
@@ -413,7 +415,9 @@ describe("README.me examples", () => {
   test("readme: applying transform to sum values", () => {
     const parser = new Parser();
 
-    parser.rule("example", /(\d)\+(\d)/u, (a, b) => Number(a) + Number(b));
+    parser
+      .rule("example", /(\d)\+(\d)/u)
+      .transform((a, b) => Number(a) + Number(b));
 
     expect(parser.parse("1+2")).toBe(3);
   });
@@ -488,8 +492,8 @@ describe("README.me examples", () => {
 
     parser.token("+");
 
-    parser.rule("sum", ["number", "+", "sum"], (a, b) => a + b);
-    parser.rule("number", /\d/u, (d) => Number(d));
+    parser.rule("sum", ["number", "+", "sum"]).transform((a, b) => a + b);
+    parser.rule("number", /\d/u).transform((d) => Number(d));
 
     expect(() => parser.parse("1+2+3+4+5")).toThrow(
       'unexpected "1" at offset 0'
@@ -501,9 +505,9 @@ describe("README.me examples", () => {
 
     parser.token("+");
 
-    parser.rule("sum", ["number", "+", "sum"], (a, b) => a + b);
+    parser.rule("sum", ["number", "+", "sum"]).transform((a, b) => a + b);
     parser.rule("sum", ["number"]);
-    parser.rule("number", /\d/u, (d) => Number(d));
+    parser.rule("number", /\d/u).transform((d) => Number(d));
 
     expect(parser.parse("1+2+3+4+5")).toBe(15);
   });

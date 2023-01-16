@@ -21,14 +21,8 @@ export const enum RuleSeparatorMode {
   MANDATORY,
 }
 
-interface RuleLiteral {
+export interface RuleLiteral {
   literal: string;
-}
-
-export interface Rule {
-  terms: Array<ArrayUnwrap<RuleTerms> | RuleLiteral>;
-  separatorMode?: RuleSeparatorMode;
-  transform?: RuleTransformer;
 }
 
 export type ArrayUnwrap<T> = T extends Array<infer I> ? I : T;

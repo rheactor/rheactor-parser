@@ -10,10 +10,10 @@ import {
   type Any,
   type TokenIdentifier,
 } from "@/Helper";
-import { type Rule } from "./Helper";
 
 import { type Parser } from "@/Parser";
 import { ParserConsumerResult } from "@/ParserConsumerResult";
+import { type ParserRule } from "@/ParserRule";
 
 export class ParserConsumer {
   private offsetLead: number | undefined;
@@ -22,7 +22,7 @@ export class ParserConsumer {
 
   private static applyTransformation(consume: ParserConsumerResult): Any {
     if (typeof consume.matches === "string") {
-      return consume.rule.transform?.(consume.matches) ?? consume.matches;
+      return consume.rule.transformer?.(consume.matches) ?? consume.matches;
     }
 
     if (Array.isArray(consume.matches)) {
@@ -33,7 +33,7 @@ export class ParserConsumer {
       );
 
       return (
-        consume.rule.transform?.(...matchesTransformed) ?? matchesTransformed
+        consume.rule.transformer?.(...matchesTransformed) ?? matchesTransformed
       );
     }
 
@@ -91,7 +91,7 @@ export class ParserConsumer {
     return 0;
   }
 
-  private consumeSeparator(rule: Rule, offset: number) {
+  private consumeSeparator(rule: ParserRule, offset: number) {
     if (rule.separatorMode !== RuleSeparatorMode.DISALLOWED) {
       const consumeToken = this.consumeToken(separatorToken, offset);
 
