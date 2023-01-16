@@ -51,3 +51,5 @@ export const getKeywordName = (keyword: KeywordIdentifier): string =>
   typeof keyword === "symbol"
     ? keyword.description ?? keyword.toString()
     : keyword;
+
+export class MandatorySeparatorError extends Error {}

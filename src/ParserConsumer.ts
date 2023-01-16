@@ -1,6 +1,7 @@
 import {
   getKeywordName,
   isKeywordIdentifier,
+  MandatorySeparatorError,
   match,
   matchAny,
   RuleSeparatorMode,
@@ -8,6 +9,7 @@ import {
   type Any,
   type KeywordIdentifier,
 } from "@/Helper";
+import { type Rule } from "./Helper";
 
 import { type Parser } from "@/Parser";
 import { ParserConsumerResult } from "@/ParserConsumerResult";
@@ -62,24 +64,43 @@ export class ParserConsumer {
     return ParserConsumer.applyTransformation(consume!);
   }
 
-  private consumeKeyword(name: KeywordIdentifier, offsetIn: number): number {
+  private consumeKeyword(name: KeywordIdentifier, offset: number): number {
     const keyword = this.parser.keywords.get(name);
 
     if (keyword) {
       for (const keywordTerm of keyword) {
         if (keywordTerm instanceof RegExp) {
-          const termResult = match(keywordTerm, this.input, offsetIn);
+          const termResult = match(keywordTerm, this.input, offset);
 
           if (termResult) {
             return termResult[0].length;
           }
-        } else if (this.input.startsWith(keywordTerm, offsetIn)) {
+        } else if (this.input.startsWith(keywordTerm, offset)) {
           return keywordTerm.length;
         }
       }
     }
 
     return 0;
+  }
+
+  private consumeSeparator(rule: Rule, offset: number) {
+    if (rule.separatorMode !== RuleSeparatorMode.DISALLOWED) {
+      const consumeKeyword = this.consumeKeyword(separatorSymbol, offset);
+
+      if (consumeKeyword) {
+        this.offsetLead = Math.max(
+          offset + consumeKeyword,
+          this.offsetLead ?? 0
+        );
+      } else if (rule.separatorMode === RuleSeparatorMode.MANDATORY) {
+        throw new MandatorySeparatorError();
+      }
+
+      return offset + consumeKeyword;
+    }
+
+    return offset;
   }
 
   private consumeRule(
@@ -89,28 +110,18 @@ export class ParserConsumer {
     const rules = this.parser.rules.get(name)!;
 
     rule: for (const rule of rules) {
-      const termsLength = rule.terms.length;
-
       let matches: ParserConsumerResult["matches"] | null;
       let offset = offsetIn;
 
-      for (let termIndex = 0; termIndex < termsLength; termIndex++) {
+      for (let termIndex = 0; termIndex < rule.terms.length; termIndex++) {
         const term = rule.terms[termIndex];
 
-        if (rule.separatorMode === RuleSeparatorMode.DISALLOWED) {
-          // Intentionally empty.
-        } else if (termIndex > 0) {
-          const consumeKeyword = this.consumeKeyword(separatorSymbol, offset);
-
-          if (
-            !consumeKeyword &&
-            rule.separatorMode === RuleSeparatorMode.MANDATORY
-          ) {
+        try {
+          offset = this.consumeSeparator(rule, offset);
+        } catch (error) {
+          if (error instanceof MandatorySeparatorError && termIndex !== 0) {
             continue rule;
           }
-
-          offset += consumeKeyword;
-          this.offsetLead = Math.max(offset, this.offsetLead ?? 0);
         }
 
         if (term instanceof RegExp) {
@@ -188,6 +199,10 @@ export class ParserConsumer {
       }
 
       if (offset !== offsetIn || matches !== undefined) {
+        if (rule.separatorMode !== RuleSeparatorMode.MANDATORY) {
+          offset = this.consumeSeparator(rule, offset);
+        }
+
         this.offsetLead ??= 0;
 
         return new ParserConsumerResult(rule, offset, matches ?? undefined);

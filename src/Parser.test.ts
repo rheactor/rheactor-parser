@@ -14,7 +14,7 @@ describe("Parser class", () => {
 
     expect(() => parser.parse("none")).toThrow('unexpected "none" at offset 0');
     expect(() => parser.parse("test 123")).toThrow(
-      'unexpected " " at offset 4'
+      'unexpected "123" at offset 5'
     );
     expect(() => parser.parse("test123")).toThrow(
       'unexpected "123" at offset 4'
@@ -135,8 +135,6 @@ describe("Parser class", () => {
 
     expect(parser.parse("a a")).toBeUndefined();
     expect(parser.parse("aa")).toBeUndefined();
-    expect(() => parser.parse(" a a")).toThrow('unexpected " " at offset 0');
-    expect(() => parser.parse("a a ")).toThrow('unexpected " " at offset 3');
   });
 
   test("separator as non-whitespace", () => {
@@ -220,6 +218,16 @@ describe("Parser class", () => {
     expect(parser.parse("a b")).toBe("b");
     expect(parser.parse("ab")).toBe("b");
     expect(() => parser.parse("ac")).toThrow('unexpected "c" at offset 1');
+  });
+
+  test("consume before and after separators", () => {
+    const parser = new Parser("initial");
+
+    parser.rule("initial", [/a/u, /a/u]);
+
+    expect(parser.parse(" aa ")).toStrictEqual(["a", "a"]);
+    expect(parser.parse("aa ")).toStrictEqual(["a", "a"]);
+    expect(parser.parse(" aa")).toStrictEqual(["a", "a"]);
   });
 
   test("readme: basic example", () => {
