@@ -221,7 +221,7 @@ describe("Parser class", () => {
   });
 
   test("consume before and after separators", () => {
-    const parser = new Parser("initial");
+    const parser = new Parser();
 
     parser.rule("initial", [/a/u, /a/u]);
 
@@ -231,7 +231,7 @@ describe("Parser class", () => {
   });
 
   test("recursions must be avoided", () => {
-    const parser = new Parser("initial");
+    const parser = new Parser();
 
     parser.rule("initial", "initial");
     parser.rule("initial", /ok/u);
@@ -240,7 +240,7 @@ describe("Parser class", () => {
   });
 
   test("recursions must be avoided, except if not first", () => {
-    const parser = new Parser("initial");
+    const parser = new Parser();
 
     parser.rule("initial", [/1/u, "initial", "initial"]);
     parser.rule("initial", "initial");
@@ -250,7 +250,7 @@ describe("Parser class", () => {
   });
 
   test("recursions must be avoided, even when it is deeper", () => {
-    const parser = new Parser("initial");
+    const parser = new Parser();
 
     parser.rule("initial", "b");
     parser.rule("initial", /ok/u);
@@ -258,6 +258,22 @@ describe("Parser class", () => {
     parser.rule("c", "initial");
 
     expect(parser.parse("ok")).toBe("ok");
+  });
+
+  test("captures none-to-multiples groups", () => {
+    const parser = new Parser();
+
+    parser.rule("initial", [/(a)(b)/u, /(c)d/u, /e/u]);
+
+    expect(parser.parse("abcde")).toStrictEqual(["a", "b", "c", "e"]);
+  });
+
+  test("captures basic and grouped", () => {
+    const parser = new Parser();
+
+    parser.rule("initial", [/a/u, /(b)(c)/u]);
+
+    expect(parser.parse("abc")).toStrictEqual(["a", "b", "c"]);
   });
 });
 

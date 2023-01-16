@@ -130,7 +130,13 @@ export class ParserConsumer {
 
           if (termResult) {
             if (Array.isArray(matches)) {
-              matches.push(...termResult);
+              if (termResult.length > 1) {
+                const [, ...termCaptured] = termResult;
+
+                matches.push(...termCaptured);
+              } else {
+                matches.push(termResult[0]);
+              }
             } else if (termResult.length > 1) {
               const [, ...termCaptured] = termResult;
 
@@ -190,13 +196,12 @@ export class ParserConsumer {
               }
 
               ({ offset } = consumeRule);
-              this.offsetLead = Math.max(offset, this.offsetLead ?? 0);
               continue;
             }
 
             continue rule;
           }
-        } else if (term === null) {
+        } else {
           matches ??= null;
           continue;
         }
@@ -208,15 +213,13 @@ export class ParserConsumer {
         throw new Error(`unknown term "${termName}" at rule "${ruleName}"`);
       }
 
-      if (offset !== offsetIn || matches !== undefined) {
-        if (rule.separatorMode !== RuleSeparatorMode.MANDATORY) {
-          offset = this.consumeSeparator(rule, offset);
-        }
-
-        this.offsetLead ??= 0;
-
-        return new ParserConsumerResult(rule, offset, matches ?? undefined);
+      if (rule.separatorMode !== RuleSeparatorMode.MANDATORY) {
+        offset = this.consumeSeparator(rule, offset);
       }
+
+      this.offsetLead ??= 0;
+
+      return new ParserConsumerResult(rule, offset, matches ?? undefined);
     }
 
     return undefined;
