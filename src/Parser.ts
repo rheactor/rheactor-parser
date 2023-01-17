@@ -110,7 +110,7 @@ export class Parser {
         );
       }
     } else if (
-      this.rulesLastIdentifier &&
+      this.rulesLastIdentifier !== undefined &&
       this.rulesLastIdentifier !== identifier
     ) {
       throw new Error(`rule "${identifier}" must be declared sequentially`);

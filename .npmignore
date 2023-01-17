@@ -9,3 +9,5 @@ babel.config.json
 jest.config.json
 README.md
 tsconfig.json
+
+*.test.ts

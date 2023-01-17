@@ -37,7 +37,8 @@ export const regexpSticky = (expression: RegExp) =>
 
 const TEXT_ONLY_REGEXP = /^[\w\s-]+$/u;
 
-const isRegexpTextOnly = TEXT_ONLY_REGEXP.exec.bind(TEXT_ONLY_REGEXP);
+const isRegexpTextOnly = (string: string) =>
+  TEXT_ONLY_REGEXP.exec(string) !== null;
 
 export const isRegexpOptimizable = (expression: RegExp) =>
   !expression.ignoreCase && isRegexpTextOnly(expression.source);

@@ -498,6 +498,16 @@ describe("Parser class", () => {
 
     expect(parser.parse("46")).toBe(10);
   });
+
+  test("ensure that optional tokens are considered consumed", () => {
+    const parser = new Parser();
+
+    parser.token(";", /;?/u);
+    parser.rule("example", [/example/u, ";"]);
+
+    expect(parser.parse("example")).toBe("example");
+    expect(parser.parse("example;")).toBe("example");
+  });
 });
 
 describe("README.me examples", () => {

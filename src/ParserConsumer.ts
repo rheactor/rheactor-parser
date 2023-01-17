@@ -88,7 +88,10 @@ export class ParserConsumer {
     return consume.matches;
   }
 
-  private consumeToken(identifier: TokenIdentifier, offset: number): number {
+  private consumeToken(
+    identifier: TokenIdentifier,
+    offset: number
+  ): number | null {
     const token = this.parser.tokensMap.get(identifier);
 
     if (token) {
@@ -96,7 +99,7 @@ export class ParserConsumer {
         if (term instanceof RegExp) {
           const termResult = match(term, this.input, offset);
 
-          if (termResult) {
+          if (termResult !== null) {
             return termResult[0].length;
           }
         } else if (this.input.startsWith(term, offset)) {
@@ -105,20 +108,22 @@ export class ParserConsumer {
       }
     }
 
-    return 0;
+    return null;
   }
 
   private consumeSeparator(rule: ParserRule, offset: number) {
     if (rule.separatorMode !== RuleSeparatorMode.DISALLOWED) {
       const consumeToken = this.consumeToken(separatorToken, offset);
 
-      if (consumeToken) {
+      if (consumeToken !== null) {
         this.offsetLead = Math.max(offset + consumeToken, this.offsetLead ?? 0);
-      } else if (rule.separatorMode === RuleSeparatorMode.MANDATORY) {
-        throw new MandatorySeparatorError();
+
+        return offset + consumeToken;
       }
 
-      return offset + consumeToken;
+      if (rule.separatorMode === RuleSeparatorMode.MANDATORY) {
+        throw new MandatorySeparatorError();
+      }
     }
 
     return offset;
@@ -192,7 +197,7 @@ export class ParserConsumer {
           if (this.parser.tokensMap.has(term)) {
             const consumeToken = this.consumeToken(term, offset);
 
-            if (!consumeToken) {
+            if (consumeToken === null) {
               continue rule;
             }
 
