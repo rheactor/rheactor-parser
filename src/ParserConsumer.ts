@@ -13,36 +13,15 @@ import {
 
 import { type Parser } from "@/Parser";
 import { ParserConsumerResult } from "@/ParserConsumerResult";
+import { ParserError } from "@/ParserError";
 import { type ParserRule } from "@/ParserRule";
 
 export class ParserConsumer {
   private offsetLead: number | undefined;
 
+  private readonly transformations = new Map<ParserConsumerResult, Any>();
+
   public constructor(public parser: Parser, public input: string) {}
-
-  private static applyTransformation(consume: ParserConsumerResult): Any {
-    if (typeof consume.matches === "string") {
-      return consume.rule.transformer?.(consume.matches) ?? consume.matches;
-    }
-
-    if (Array.isArray(consume.matches)) {
-      const matchesTransformed = consume.matches.map((matched) =>
-        matched instanceof ParserConsumerResult
-          ? this.applyTransformation(matched)
-          : matched
-      );
-
-      return (
-        consume.rule.transformer?.(...matchesTransformed) ?? matchesTransformed
-      );
-    }
-
-    if (consume.matches instanceof ParserConsumerResult) {
-      return this.applyTransformation(consume.matches);
-    }
-
-    return consume.matches;
-  }
 
   public consume() {
     const consume = this.consumeRule(this.parser.ruleInitial!);
@@ -68,7 +47,37 @@ export class ParserConsumer {
     }
 
     // Performs the entire process of transforming the terms found.
-    return ParserConsumer.applyTransformation(consume!);
+    return this.applyTransformation(consume!);
+  }
+
+  private applyTransformation(consume: ParserConsumerResult): Any {
+    const transformation = this.transformations.get(consume);
+
+    if (transformation !== undefined) {
+      return transformation;
+    }
+
+    if (typeof consume.matches === "string") {
+      return consume.rule.transformer?.(consume.matches) ?? consume.matches;
+    }
+
+    if (Array.isArray(consume.matches)) {
+      const matchesTransformed = consume.matches.map((matched) =>
+        matched instanceof ParserConsumerResult
+          ? this.applyTransformation(matched)
+          : matched
+      );
+
+      return (
+        consume.rule.transformer?.(...matchesTransformed) ?? matchesTransformed
+      );
+    }
+
+    if (consume.matches instanceof ParserConsumerResult) {
+      return this.applyTransformation(consume.matches);
+    }
+
+    return consume.matches;
   }
 
   private consumeToken(identifier: TokenIdentifier, offset: number): number {
@@ -247,7 +256,29 @@ export class ParserConsumer {
 
       this.offsetLead ??= 0;
 
-      return new ParserConsumerResult(rule, offset, matches);
+      const consumerResult = new ParserConsumerResult(rule, offset, matches);
+
+      if (rule.validator) {
+        const consumerTransformation = this.applyTransformation(consumerResult);
+        const ruleValidation = rule.validator(consumerTransformation);
+
+        this.transformations.set(consumerResult, consumerTransformation);
+
+        if (ruleValidation === false) {
+          return undefined;
+        } else if (ruleValidation instanceof Error) {
+          const inputPosition = matchAny(this.input, offsetIn)?.[0];
+
+          throw ParserError.from(
+            ruleValidation.message,
+            { cause: ruleValidation.cause },
+            `unexpected "${inputPosition}"`,
+            offsetIn
+          );
+        }
+      }
+
+      return consumerResult;
     }
 
     return undefined;

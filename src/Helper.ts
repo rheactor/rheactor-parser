@@ -15,6 +15,8 @@ export type RuleTerms =
 
 export type RuleTransformer = (...args: Any[]) => void;
 
+export type RuleValidator = (...args: Any[]) => Error | boolean;
+
 export const enum RuleSeparatorMode {
   OPTIONAL,
   DISALLOWED,

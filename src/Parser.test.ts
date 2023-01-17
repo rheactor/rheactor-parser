@@ -1,4 +1,5 @@
 import { Parser } from "@/Parser";
+import { ParserError } from "@/ParserError";
 
 describe("Parser class", () => {
   test("no rule specified", () => {
@@ -406,6 +407,64 @@ describe("Parser class", () => {
     parser.rule("initial", [/a/u, /(b)(c)/u]);
 
     expect(parser.parse("abc")).toStrictEqual(["a", "b", "c"]);
+  });
+
+  test("consume must fail if validation fails", () => {
+    const parser = new Parser();
+
+    // eslint-disable-next-line jest/no-conditional-in-test
+    parser.rule("smallNumber", /\d+/u).validate((n) => n >= 0 && n <= 1000);
+
+    expect(parser.parse("0")).toBe("0");
+    expect(parser.parse("1000")).toBe("1000");
+    expect(() => parser.parse("5000")).toThrow('unexpected "5000" at offset 0');
+  });
+
+  test("consume must fail if validation fails, with custom message", () => {
+    const parser = new Parser();
+
+    parser.rule("example", [/abc/u, "smallNumber"]);
+    parser.rule("smallNumber", /\d+/u).validate((n) =>
+      // eslint-disable-next-line jest/no-conditional-in-test
+      n >= 0 && n <= 1000 ? true : new Error("number too big")
+    );
+
+    expect(parser.parse("abc 0")).toStrictEqual(["abc", "0"]);
+    expect(parser.parse("abc 1000")).toStrictEqual(["abc", "1000"]);
+
+    const expectedError = new ParserError("number too big");
+
+    expectedError.offset = 4;
+    expectedError.unexpectedMessage = 'unexpected "5000"';
+
+    try {
+      parser.parse("abc 5000");
+    } catch (e) {
+      /* eslint-disable */
+      expect(e).toBeInstanceOf(ParserError);
+
+      if (e instanceof ParserError) {
+        expect(e.offset).toBe(4);
+        expect(e.unexpectedMessage).toBe('unexpected "5000"');
+      }
+    }
+  });
+
+  test("transformation must occur only once, if validated", () => {
+    expect.assertions(2);
+
+    const parser = new Parser();
+
+    parser
+      .rule("smallNumber", /\d+/u)
+      .transform((n) => {
+        expect(true).toBe(true);
+
+        return Number(n);
+      })
+      .validate((n) => typeof n === "number" && n >= 0 && n <= 1000);
+
+    expect(parser.parse("0")).toBe(0);
   });
 });
 
