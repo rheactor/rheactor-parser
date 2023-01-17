@@ -215,6 +215,16 @@ describe("Parser class", () => {
     );
   });
 
+  test("rule with same identifier must be sequential", () => {
+    expect(() => {
+      const parser = new Parser();
+
+      parser.rule("first", "example");
+      parser.rule("second", "example");
+      parser.rule("first", "example");
+    }).toThrow('rule "first" must be declared sequentially');
+  });
+
   test("subrules", () => {
     const parser = new Parser();
 

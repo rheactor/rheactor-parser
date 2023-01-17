@@ -22,11 +22,13 @@ interface ParserOptions {
 export class Parser {
   public readonly rulesMap = new Map<string, ParserRule[]>();
 
-  public ruleInitial: string | undefined;
+  public ruleInitial?: string;
 
   public readonly tokensMap = new Map<TokenIdentifier, TokenTermsArray>([
     [separatorToken, [regexpSticky(separatorWhitespace)]],
   ]);
+
+  private rulesLastIdentifier?: string;
 
   public constructor(options?: ParserOptions) {
     this.ruleInitial = options?.ruleInitial;
@@ -109,6 +111,11 @@ export class Parser {
           `rule is using identifier "${identifier}" reserved for token`
         );
       }
+    } else if (
+      this.rulesLastIdentifier &&
+      this.rulesLastIdentifier !== identifier
+    ) {
+      throw new Error(`rule "${identifier}" must be declared sequentially`);
     }
 
     const ruleTerms = Array.isArray(terms) ? terms : [terms];
@@ -134,6 +141,7 @@ export class Parser {
       separatorMode
     );
 
+    this.rulesLastIdentifier = identifier;
     this.rulesMap.get(identifier)!.push(rule);
 
     return rule;
