@@ -447,6 +447,7 @@ describe("Parser class", () => {
         expect(e.offset).toBe(4);
         expect(e.unexpectedMessage).toBe('unexpected "5000"');
       }
+      /* eslint-enable */
     }
   });
 
@@ -462,6 +463,7 @@ describe("Parser class", () => {
 
         return Number(n);
       })
+      // eslint-disable-next-line jest/no-conditional-in-test
       .validate((n) => typeof n === "number" && n >= 0 && n <= 1000);
 
     expect(parser.parse("0")).toBe(0);
@@ -470,10 +472,31 @@ describe("Parser class", () => {
   test("ensure that the /.../i flag is maintained", () => {
     const parser = new Parser();
 
-    parser.rule("expression", /example/iu);
+    // eslint-disable-next-line require-unicode-regexp
+    parser.rule("expression", /example/i);
 
     expect(parser.parse("example")).toBe("example");
     expect(parser.parse("EXAMPLE")).toBe("EXAMPLE");
+  });
+
+  test("ensure that transformation happens on subrules", () => {
+    const parser = new Parser();
+
+    parser.rule("expression", "number").transform(Number);
+    parser.rule("number", /\d+/u);
+
+    expect(parser.parse("123")).toBe(123);
+  });
+
+  test("ensure that transformation happens on subrules, multiple groups", () => {
+    const parser = new Parser();
+
+    parser
+      .rule("expression", "number")
+      .transform((a, b) => Number(a) + Number(b));
+    parser.rule("number", /(\d)(\d)/u);
+
+    expect(parser.parse("46")).toBe(10);
   });
 });
 

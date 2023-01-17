@@ -74,7 +74,15 @@ export class ParserConsumer {
     }
 
     if (consume.matches instanceof ParserConsumerResult) {
-      return this.applyTransformation(consume.matches);
+      const matchTransformation = this.applyTransformation(consume.matches);
+
+      return (
+        consume.rule.transformer?.(
+          ...(Array.isArray(matchTransformation)
+            ? matchTransformation
+            : [matchTransformation])
+        ) ?? matchTransformation
+      );
     }
 
     return consume.matches;
