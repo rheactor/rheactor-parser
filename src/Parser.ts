@@ -33,13 +33,11 @@ export class Parser {
   }
 
   public separator(terms: TokenTerms | false) {
-    if (terms === false) {
-      this.tokensMap.delete(separatorToken);
+    this.tokensMap.delete(separatorToken);
 
-      return;
+    if (terms !== false) {
+      this.token(separatorToken, terms);
     }
-
-    this.token(separatorToken, terms);
   }
 
   public token(identifier: string): void;
@@ -49,7 +47,7 @@ export class Parser {
   public token(identifier: TokenIdentifier, terms?: TokenTerms): void {
     const tokenIdentifier = getTokenIdentifier(identifier);
 
-    if (this.tokensMap.has(tokenIdentifier)) {
+    if (this.tokensMap.has(identifier)) {
       throw new Error(`token "${tokenIdentifier}" already defined`);
     }
 
