@@ -466,6 +466,15 @@ describe("Parser class", () => {
 
     expect(parser.parse("0")).toBe(0);
   });
+
+  test("ensure that the /.../i flag is maintained", () => {
+    const parser = new Parser();
+
+    parser.rule("expression", /example/iu);
+
+    expect(parser.parse("example")).toBe("example");
+    expect(parser.parse("EXAMPLE")).toBe("EXAMPLE");
+  });
 });
 
 describe("README.me examples", () => {

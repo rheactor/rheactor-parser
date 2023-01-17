@@ -30,11 +30,17 @@ export interface RuleLiteral {
 export type ArrayUnwrap<T> = T extends Array<infer I> ? I : T;
 
 export const regexpSticky = (expression: RegExp) =>
-  new RegExp(expression, "yu");
+  new RegExp(
+    expression,
+    `y${expression.ignoreCase ? "i" : ""}${expression.unicode ? "u" : ""}`
+  );
 
 const TEXT_ONLY_REGEXP = /^[\w\s-]+$/u;
 
-export const isRegexpTextOnly = TEXT_ONLY_REGEXP.exec.bind(TEXT_ONLY_REGEXP);
+const isRegexpTextOnly = TEXT_ONLY_REGEXP.exec.bind(TEXT_ONLY_REGEXP);
+
+export const isRegexpOptimizable = (expression: RegExp) =>
+  !expression.ignoreCase && isRegexpTextOnly(expression.source);
 
 export const match = (regexp: RegExp, input: string, at = 0) => {
   regexp.lastIndex = at;

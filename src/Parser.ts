@@ -1,6 +1,6 @@
 import {
   getTokenIdentifier,
-  isRegexpTextOnly,
+  isRegexpOptimizable,
   matchIdentifier,
   regexpSticky,
   RuleSeparatorMode,
@@ -69,9 +69,7 @@ export class Parser {
       identifier,
       tokenTerms.map((term) => {
         if (term instanceof RegExp) {
-          return isRegexpTextOnly(term.source)
-            ? term.source
-            : regexpSticky(term);
+          return isRegexpOptimizable(term) ? term.source : regexpSticky(term);
         }
 
         return term;
@@ -131,7 +129,7 @@ export class Parser {
     const rule = new ParserRule(
       ruleTerms.map((term) => {
         if (term instanceof RegExp) {
-          return isRegexpTextOnly(term.source)
+          return isRegexpOptimizable(term)
             ? { literal: term.source }
             : regexpSticky(term);
         }
