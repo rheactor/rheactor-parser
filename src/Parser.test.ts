@@ -186,7 +186,16 @@ describe("Parser class", () => {
     parser.token("a");
     parser.rule("initial", null);
 
-    expect(parser.parse("")).toBeUndefined();
+    expect(parser.parse("")).toBeNull();
+  });
+
+  test("rule with null alternative", () => {
+    const parser = new Parser();
+
+    parser.rule("initial", [/a/u, "initial"]);
+    parser.rule("initial", null);
+
+    expect(parser.parse("aa")).toStrictEqual(["a", ["a", null]]);
   });
 
   test("rule non-nullable", () => {

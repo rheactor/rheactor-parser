@@ -41,7 +41,7 @@ export class ParserConsumer {
       return this.applyTransformation(consume.matches);
     }
 
-    return undefined;
+    return consume.matches;
   }
 
   public consume() {
@@ -121,7 +121,7 @@ export class ParserConsumer {
     rule: for (const rule of rules) {
       const termsLength = rule.terms.length;
 
-      let matches: ParserConsumerResult["matches"] | null;
+      let matches: ParserConsumerResult["matches"];
       let offset = offsetIn;
 
       for (let termIndex = 0; termIndex < termsLength; termIndex++) {
@@ -150,7 +150,7 @@ export class ParserConsumer {
             } else if (termResult.length > 1) {
               const [, ...termCaptured] = termResult;
 
-              if (matches === undefined || matches === null) {
+              if (matches === undefined) {
                 if (termCaptured.length === 1) {
                   [matches] = termCaptured;
                 } else {
@@ -159,7 +159,7 @@ export class ParserConsumer {
               } else {
                 matches = [matches, ...termCaptured];
               }
-            } else if (matches === undefined || matches === null) {
+            } else if (matches === undefined) {
               [matches] = termResult;
             } else {
               matches = [matches, termResult[0]];
@@ -197,7 +197,7 @@ export class ParserConsumer {
             if (consumeRule !== undefined) {
               if (Array.isArray(matches)) {
                 matches.push(consumeRule);
-              } else if (matches === undefined || matches === null) {
+              } else if (matches === undefined) {
                 matches = consumeRule;
               } else {
                 matches = [matches, consumeRule];
@@ -213,7 +213,7 @@ export class ParserConsumer {
           if (this.input.startsWith(term.literal, offset)) {
             if (Array.isArray(matches)) {
               matches.push(term.literal);
-            } else if (matches === undefined || matches === null) {
+            } else if (matches === undefined) {
               matches = term.literal;
             } else {
               matches = [matches, term.literal];
@@ -247,7 +247,7 @@ export class ParserConsumer {
 
       this.offsetLead ??= 0;
 
-      return new ParserConsumerResult(rule, offset, matches ?? undefined);
+      return new ParserConsumerResult(rule, offset, matches);
     }
 
     return undefined;

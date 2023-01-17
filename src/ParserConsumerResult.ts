@@ -5,8 +5,9 @@ export class ParserConsumerResult {
     public rule: ParserRule,
     public offset: number,
     public matches?:
-      | Array<ParserConsumerResult | string>
+      | Array<ParserConsumerResult | string | null>
       | ParserConsumerResult
       | string
+      | null
   ) {}
 }
