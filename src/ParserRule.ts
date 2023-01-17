@@ -1,5 +1,4 @@
 import type {
-  Any,
   ArrayUnwrap,
   RuleLiteral,
   RuleSeparatorMode,
@@ -31,6 +30,7 @@ export class ParserRule {
   }
 
   public wrap() {
-    return this.transform((...args: Any[]) => args);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return this.transform((...args: any[]) => args);
   }
 }

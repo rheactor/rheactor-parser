@@ -1,6 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Any = any;
-
 export type TokenTerms = RegExp | TokenTermsArray | string;
 
 export type TokenTermsArray = Array<RegExp | string>;
@@ -13,9 +10,11 @@ export type RuleTerms =
   | TokenIdentifier
   | null;
 
-export type RuleTransformer = (...args: Any[]) => void;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type RuleTransformer = (...args: any[]) => void;
 
-export type RuleValidator = (...args: Any[]) => Error | boolean;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type RuleValidator = (...args: any[]) => Error | boolean;
 
 export const enum RuleSeparatorMode {
   OPTIONAL,

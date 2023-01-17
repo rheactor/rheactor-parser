@@ -7,7 +7,6 @@ import {
   matchAny,
   RuleSeparatorMode,
   separatorToken,
-  type Any,
   type TokenIdentifier,
 } from "@/Helper";
 
@@ -19,7 +18,8 @@ import { type ParserRule } from "@/ParserRule";
 export class ParserConsumer {
   private offsetLead: number | undefined;
 
-  private readonly transformations = new Map<ParserConsumerResult, Any>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private readonly transformations = new Map<ParserConsumerResult, any>();
 
   public constructor(public parser: Parser, public input: string) {}
 
@@ -50,7 +50,8 @@ export class ParserConsumer {
     return this.applyTransformation(consume!);
   }
 
-  private applyTransformation(consume: ParserConsumerResult): Any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private applyTransformation(consume: ParserConsumerResult): any {
     const transformation = this.transformations.get(consume);
 
     if (transformation !== undefined) {

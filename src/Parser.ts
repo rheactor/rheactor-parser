@@ -19,7 +19,8 @@ interface ParserOptions {
   ruleInitial?: string;
 }
 
-export class Parser {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class Parser<T = any> {
   public readonly rulesMap = new Map<string, ParserRule[]>();
 
   public ruleInitial?: string;
@@ -145,7 +146,7 @@ export class Parser {
     return rule;
   }
 
-  public parse(input: string) {
+  public parse(input: string): T | undefined {
     if (this.rulesMap.size === 0) {
       throw new Error("no rule specified");
     }
