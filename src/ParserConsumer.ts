@@ -86,7 +86,7 @@ export class ParserConsumer {
       );
     }
 
-    return consume.matches;
+    return consume.rule.transformer?.() ?? consume.matches;
   }
 
   private consumeToken(

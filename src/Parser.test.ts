@@ -508,6 +508,16 @@ describe("Parser class", () => {
     expect(parser.parse("example")).toBe("example");
     expect(parser.parse("example;")).toBe("example");
   });
+
+  test("transform must be applied if available, even if nothing was captured", () => {
+    const parser = new Parser();
+
+    parser.token(";");
+    parser.rule("example", [/example/u, "token"]);
+    parser.rule("token", ";").transform(() => "fine");
+
+    expect(parser.parse("example;")).toStrictEqual(["example", "fine"]);
+  });
 });
 
 describe("README.me examples", () => {
