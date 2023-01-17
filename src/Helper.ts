@@ -29,10 +29,9 @@ export interface RuleLiteral {
 export type ArrayUnwrap<T> = T extends Array<infer I> ? I : T;
 
 export const regexpSticky = (expression: RegExp) =>
-  new RegExp(
-    expression,
-    `y${expression.ignoreCase ? "i" : ""}${expression.unicode ? "u" : ""}`
-  );
+  expression.sticky
+    ? expression
+    : new RegExp(expression, `y${expression.flags}`);
 
 const TEXT_ONLY_REGEXP = /^[\w\s-]+$/u;
 
