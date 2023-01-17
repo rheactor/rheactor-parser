@@ -251,6 +251,17 @@ describe("Parser class", () => {
     expect(parser.parse("abcde")).toBe("abcde");
   });
 
+  test("subrules with forced wrapper", () => {
+    const parser = new Parser();
+
+    parser.rule("initial", [/a/u, "subrule"]);
+    parser.rule("subrule", /b/u).wrap();
+    parser.rule("subrule", [/c/u, /d/u]);
+
+    expect(parser.parse("ab")).toStrictEqual(["a", ["b"]]);
+    expect(parser.parse("acd")).toStrictEqual(["a", ["c", "d"]]);
+  });
+
   test("consume before and after separators", () => {
     const parser = new Parser();
 

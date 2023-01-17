@@ -1,4 +1,5 @@
 import type {
+  Any,
   ArrayUnwrap,
   RuleLiteral,
   RuleSeparatorMode,
@@ -18,5 +19,9 @@ export class ParserRule {
     this.transformer = transformer;
 
     return this;
+  }
+
+  public wrap() {
+    return this.transform((...args: Any[]) => args);
   }
 }
