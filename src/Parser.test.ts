@@ -518,6 +518,21 @@ describe("Parser class", () => {
 
     expect(parser.parse("example;")).toStrictEqual(["example", "fine"]);
   });
+
+  test("ensure that validate() arguments are spread", () => {
+    const parser = new Parser();
+
+    parser.token("+");
+    parser.rule("example", [/\d+/u, "+", /abc/u]).validate((n) =>
+      // eslint-disable-next-line jest/no-conditional-in-test
+      Number(n) < 1000 ? true : new Error("number must be lower than 1000")
+    );
+
+    expect(parser.parse("567 + abc")).toStrictEqual(["567", "abc"]);
+    expect(() => parser.parse("12345 + abc")).toThrow(
+      "number must be lower than 1000"
+    );
+  });
 });
 
 describe("README.me examples", () => {

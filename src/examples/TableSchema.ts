@@ -50,6 +50,7 @@ parser.token("COLLATE", /collate/iuy);
 parser.token("PRIMARY KEY", /primary\s+key/iuy);
 parser.token("UNIQUE KEY", /unique\s+key/iuy);
 parser.token("DEFAULT CHARSET", /default\s+charset/iuy);
+parser.token("CHARACTER SET", /character\s+set/iuy);
 parser.token("ENGINE", /engine/iuy);
 parser.token("ROW_FORMAT", /row_format/iuy);
 parser.token(";", /;?/uy);
@@ -137,6 +138,9 @@ parser
   .rule("property", ["ON UPDATE", "function"])
   .transform((func) => ({ onUpdate: func }));
 parser.rule("property", "comment").transform((comment) => ({ comment }));
+parser
+  .rule("property", ["CHARACTER SET", "identifier"])
+  .transform((characterSet) => ({ characterSet }));
 parser
   .rule("property", ["COLLATE", "identifier"])
   .transform((collate) => ({ collate }));

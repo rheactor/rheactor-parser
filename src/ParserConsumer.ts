@@ -274,7 +274,11 @@ export class ParserConsumer {
 
       if (rule.validator) {
         const consumerTransformation = this.applyTransformation(consumerResult);
-        const ruleValidation = rule.validator(consumerTransformation);
+        const ruleValidation = rule.validator(
+          ...(Array.isArray(consumerTransformation)
+            ? consumerTransformation
+            : [consumerTransformation])
+        );
 
         this.transformations.set(consumerResult, consumerTransformation);
 
