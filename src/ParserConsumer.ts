@@ -119,7 +119,7 @@ export class ParserConsumer {
       if (consumeToken !== null) {
         this.offsetLead = Math.max(offset + consumeToken, this.offsetLead ?? 0);
 
-        return offset + consumeToken;
+        return consumeToken;
       }
 
       if (rule.separatorMode === RuleSeparatorMode.MANDATORY) {
@@ -127,7 +127,7 @@ export class ParserConsumer {
       }
     }
 
-    return offset;
+    return 0;
   }
 
   private consumeRule(
@@ -140,6 +140,7 @@ export class ParserConsumer {
     }
 
     const rules = this.parser.rulesMap.get(identifier)!;
+    const consumedRules = new Map<string, ParserConsumerResult | undefined>();
 
     rule: for (const rule of rules) {
       const termsLength = rule.terms.length;
@@ -151,7 +152,7 @@ export class ParserConsumer {
         const term = rule.terms[termIndex];
 
         try {
-          offset = this.consumeSeparator(rule, offset);
+          offset += this.consumeSeparator(rule, offset);
         } catch (error) {
           if (error instanceof MandatorySeparatorError && termIndex !== 0) {
             continue rule;
@@ -212,10 +213,18 @@ export class ParserConsumer {
               continue rule;
             }
 
+            const consumedRuleKey = `${term}:${offset}`;
+            const consumedRule = consumedRules.get(consumedRuleKey);
+
             const consumeRule =
-              offsetIn === offset
+              consumedRule ??
+              (offsetIn === offset
                 ? this.consumeRule(term, offset, [...path, term])
-                : this.consumeRule(term, offset);
+                : this.consumeRule(term, offset));
+
+            if (!consumedRule) {
+              consumedRules.set(consumedRuleKey, consumeRule);
+            }
 
             if (consumeRule !== undefined) {
               if (Array.isArray(matches)) {
@@ -265,7 +274,7 @@ export class ParserConsumer {
       }
 
       if (rule.separatorMode !== RuleSeparatorMode.MANDATORY) {
-        offset = this.consumeSeparator(rule, offset);
+        offset += this.consumeSeparator(rule, offset);
       }
 
       this.offsetLead ??= 0;

@@ -194,7 +194,7 @@ describe(`TableSchema example`, () => {
 
     expect(
       TableSchema.parse(
-        "CREATE TABLE test ( `id` INT ZEROFILL COLLATE utf8mb3_unicode_ci )"
+        "CREATE TABLE test ( `id` INT ZEROFILL CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci )"
       )
     ).toStrictEqual({
       table: `test`,
@@ -205,6 +205,7 @@ describe(`TableSchema example`, () => {
           type: { name: `INT` },
           properties: {
             zerofill: true,
+            characterSet: "utf8mb3",
             collate: `utf8mb3_unicode_ci`,
           },
         },
@@ -231,6 +232,7 @@ describe(`TableSchema example`, () => {
           format: `index`,
           type: `primaryKey`,
           columns: ["i`d"],
+          using: null,
         },
       ],
       options: null,
@@ -238,7 +240,7 @@ describe(`TableSchema example`, () => {
 
     expect(
       TableSchema.parse(
-        "CREATE TABLE test ( `i``d` INT, UNIQUE KEY ( `i``d` ) )"
+        "CREATE TABLE test ( `i``d` INT, UNIQUE INDEX `i``d` ( `i``d` ) )"
       )
     ).toStrictEqual({
       table: `test`,
@@ -252,7 +254,9 @@ describe(`TableSchema example`, () => {
         {
           format: `index`,
           type: `unique`,
+          identifier: "i`d",
           columns: ["i`d"],
+          using: null,
         },
       ],
       options: null,
@@ -309,7 +313,7 @@ describe(`TableSchema example`, () => {
             ID INT,
             Name INT,
             PRIMARY KEY (ID),
-            UNIQUE KEY (Name)
+            UNIQUE INDEX Name (Name)
         )
         ENGINE=InnoDB
         DEFAULT CHARSET=utf8mb4
@@ -335,11 +339,14 @@ describe(`TableSchema example`, () => {
           format: `index`,
           type: "primaryKey",
           columns: ["ID"],
+          using: null,
         },
         {
           format: `index`,
           type: "unique",
+          identifier: "Name",
           columns: ["Name"],
+          using: null,
         },
       ],
       options: {
@@ -347,6 +354,74 @@ describe(`TableSchema example`, () => {
         comment: "Example table for demonstration purposes",
         defaultCharset: "utf8mb4",
       },
+    });
+
+    expect(
+      TableSchema.parse(
+        `
+          CREATE TABLE test (
+            collate_string TINYTEXT COLLATE 'utf8mb4_general_ci',
+            default_current_timestamp DATETIME DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+            PRIMARY KEY (id) USING BTREE,
+            UNIQUE INDEX collate_string (collate_string) USING BTREE,
+            CONSTRAINT collate_string CHECK (json_valid(collate_string))
+          )
+        `
+      )
+    ).toStrictEqual({
+      options: null,
+      statements: [
+        {
+          format: "column",
+          name: "collate_string",
+          properties: {
+            collate: "'utf8mb4_general_ci'",
+          },
+          type: {
+            name: "TINYTEXT",
+          },
+        },
+        {
+          format: "column",
+          name: "default_current_timestamp",
+          properties: {
+            default: {
+              args: [],
+              name: "current_timestamp",
+            },
+            onUpdate: {
+              args: [],
+              name: "current_timestamp",
+            },
+          },
+          type: {
+            name: "DATETIME",
+          },
+        },
+        {
+          columns: ["id"],
+          format: "index",
+          type: "primaryKey",
+          using: "BTREE",
+        },
+        {
+          columns: ["collate_string"],
+          format: "index",
+          identifier: "collate_string",
+          type: "unique",
+          using: "BTREE",
+        },
+        {
+          format: "index",
+          func: {
+            args: ["collate_string"],
+            name: "json_valid",
+          },
+          identifier: "collate_string",
+          type: "unique",
+        },
+      ],
+      table: "test",
     });
   });
 });

@@ -48,11 +48,14 @@ parser.token("AUTO_INCREMENT", /auto_increment/iuy);
 parser.token("COMMENT", /comment/iuy);
 parser.token("COLLATE", /collate/iuy);
 parser.token("PRIMARY KEY", /primary\s+key/iuy);
-parser.token("UNIQUE KEY", /unique\s+key/iuy);
+parser.token("UNIQUE INDEX", /unique\s+index/iuy);
+parser.token("CONSTRAINT", /constraint/iuy);
 parser.token("DEFAULT CHARSET", /default\s+charset/iuy);
 parser.token("CHARACTER SET", /character\s+set/iuy);
 parser.token("ENGINE", /engine/iuy);
 parser.token("ROW_FORMAT", /row_format/iuy);
+parser.token("USING", /using/iuy);
+parser.token("CHECK", /check/iuy);
 parser.token(";", /;?/uy);
 parser.token("=?", /[=]?/uy);
 
@@ -84,18 +87,43 @@ parser
 parser.rule("statements", "statement").wrap();
 
 parser
-  .rule("statement", ["PRIMARY KEY", "(", "identifier", ")"])
-  .transform((identifier) => ({
+  .rule("statement", ["PRIMARY KEY", "(", "identifier", ")", "using"])
+  .transform((identifier, using) => ({
     format: "index",
     type: "primaryKey",
     columns: [identifier],
+    using,
   }));
 parser
-  .rule("statement", ["UNIQUE KEY", "(", "identifier", ")"])
-  .transform((identifier) => ({
+  .rule("statement", [
+    "UNIQUE INDEX",
+    "identifier",
+    "(",
+    "identifier",
+    ")",
+    "using",
+  ])
+  .transform((identifier, column, using) => ({
     format: "index",
     type: "unique",
-    columns: [identifier],
+    identifier,
+    columns: [column],
+    using,
+  }));
+parser
+  .rule("statement", [
+    "CONSTRAINT",
+    "identifier",
+    "CHECK",
+    "(",
+    "function",
+    ")",
+  ])
+  .transform((identifier, func) => ({
+    format: "index",
+    type: "unique",
+    identifier,
+    func,
   }));
 parser
   .rule("statement", ["identifier", "function", "properties"])
@@ -118,6 +146,7 @@ parser.rule("arguments", "argument").wrap();
 parser.rule("arguments", null).wrap();
 
 parser.rule("argument", "scalar");
+parser.rule("argument", "identifier");
 
 parser
   .rule("properties", ["property", "properties"])
@@ -142,7 +171,7 @@ parser
   .rule("property", ["CHARACTER SET", "identifier"])
   .transform((characterSet) => ({ characterSet }));
 parser
-  .rule("property", ["COLLATE", "identifier"])
+  .rule("property", ["COLLATE", "value"])
   .transform((collate) => ({ collate }));
 parser
   .rule("property", /(not\s+)?null/iuy)
@@ -178,9 +207,13 @@ parser
   .transform((rowFormat) => ({ rowFormat }));
 parser.rule("option", "comment").transform((comment) => ({ comment }));
 
+parser.rule("using", ["USING", /btree|hash|rtree/iuy]);
+parser.rule("using", null);
+
 parser.rule("scalar", /\d+|true|false|null|'(?:''|[^'])+'|"(?:""|[^"])+"/iu);
 
 parser.rule("value", "scalar");
-parser.rule("value", "name");
+parser.rule("value", ["name", /(?!\s*\()/u]);
+parser.rule("value", "function");
 
 export const TableSchema = parser;
