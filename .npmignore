@@ -1,5 +1,6 @@
 .github/
 
+coverage/
 src/examples/
 
 .eslintrc.json

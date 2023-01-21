@@ -12,7 +12,8 @@
     "eslint:fix": "eslint --fix ./src",
     "test": "jest",
     "test:watch": "jest --watchAll",
-    "test:coverage": "jest --coverage --watchAll"
+    "test:coverage": "jest --coverage --watchAll",
+    "test:coverage-strict": "jest --collect-coverage"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.20.2",
