@@ -41,6 +41,7 @@
     "no-caller": "warn",
     "no-console": "warn",
     "no-constant-binary-expression": "warn",
+    "no-constant-condition": ["warn", { "checkLoops": false }],
     "no-constructor-return": "warn",
     "no-div-regex": "warn",
     "no-else-return": "warn",
@@ -144,7 +145,6 @@
     "prefer-spread": "warn",
     "prefer-template": "warn",
     "require-atomic-updates": "warn",
-    "require-unicode-regexp": "warn",
     "spaced-comment": "warn",
     "symbol-description": "warn",
     "yield-star-spacing": "warn",
@@ -181,6 +181,10 @@
     "@typescript-eslint/no-redundant-type-constituents": "warn",
     "@typescript-eslint/no-require-imports": "warn",
     "@typescript-eslint/no-shadow": "warn",
+    "@typescript-eslint/no-unnecessary-condition": [
+      "warn",
+      { "allowConstantLoopConditions": true }
+    ],
     "@typescript-eslint/no-unnecessary-qualifier": "warn",
     "@typescript-eslint/no-unused-expressions": "warn",
     "@typescript-eslint/no-unused-vars": [

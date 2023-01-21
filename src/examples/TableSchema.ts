@@ -41,23 +41,23 @@ interface TableFunction {
 const parser = new Parser<TableSchemaInterface>();
 
 parser.tokens("(", ")", ",");
-parser.token("CREATE TABLE", /create\s+table/iuy);
-parser.token("ON UPDATE", /on\s+update/iuy);
-parser.token("DEFAULT", /default/iuy);
-parser.token("AUTO_INCREMENT", /auto_increment/iuy);
-parser.token("COMMENT", /comment/iuy);
-parser.token("COLLATE", /collate/iuy);
-parser.token("PRIMARY KEY", /primary\s+key/iuy);
-parser.token("UNIQUE INDEX", /unique\s+index/iuy);
-parser.token("CONSTRAINT", /constraint/iuy);
-parser.token("DEFAULT CHARSET", /default\s+charset/iuy);
-parser.token("CHARACTER SET", /character\s+set/iuy);
-parser.token("ENGINE", /engine/iuy);
-parser.token("ROW_FORMAT", /row_format/iuy);
-parser.token("USING", /using/iuy);
-parser.token("CHECK", /check/iuy);
-parser.token(";", /;?/uy);
-parser.token("=?", /[=]?/uy);
+parser.token("CREATE TABLE", /create\s+table/iy);
+parser.token("ON UPDATE", /on\s+update/iy);
+parser.token("DEFAULT", /default/iy);
+parser.token("AUTO_INCREMENT", /auto_increment/iy);
+parser.token("COMMENT", /comment/iy);
+parser.token("COLLATE", /collate/iy);
+parser.token("PRIMARY KEY", /primary\s+key/iy);
+parser.token("UNIQUE INDEX", /unique\s+index/iy);
+parser.token("CONSTRAINT", /constraint/iy);
+parser.token("DEFAULT CHARSET", /default\s+charset/iy);
+parser.token("CHARACTER SET", /character\s+set/iy);
+parser.token("ENGINE", /engine/iy);
+parser.token("ROW_FORMAT", /row_format/iy);
+parser.token("USING", /using/iy);
+parser.token("CHECK", /check/iy);
+parser.token(";", /;?/y);
+parser.token("=?", /[=]?/y);
 
 parser
   .rule("expression", [
@@ -75,11 +75,11 @@ parser
 
 parser
   // eslint-disable-next-line no-control-regex
-  .rule("identifier", /`((?:``|[\u0001-\u005F\u0061-\uFFFF])+)`/uy)
+  .rule("identifier", /`((?:``|[\u0001-\u005F\u0061-\uFFFF])+)`/y)
   .transform((identifier) => identifier.replace(TICK_REPLACER_REGEXP, "`"));
 parser.rule("identifier", "name");
 
-parser.rule("name", /[\w$\u0080-\uFFFF]+/uy);
+parser.rule("name", /[\w$\u0080-\uFFFF]+/y);
 
 parser
   .rule("statements", ["statement", ",", "statements"])
@@ -155,7 +155,7 @@ parser.rule("properties", "property");
 parser.rule("properties", null);
 
 parser
-  .rule("property", /unsigned|zerofill|invisible/iuy)
+  .rule("property", /unsigned|zerofill|invisible/iy)
   .transform((name: string) => ({ [name.toLowerCase()]: true }));
 parser
   .rule("property", "AUTO_INCREMENT")
@@ -174,14 +174,14 @@ parser
   .rule("property", ["COLLATE", "value"])
   .transform((collate) => ({ collate }));
 parser
-  .rule("property", /(not\s+)?null/iuy)
+  .rule("property", /(not\s+)?null/iy)
   .transform((not: string) => (not ? {} : { nullable: true }));
 
 parser
-  .rule("comment", ["COMMENT", "=?", /'((?:''|[^'])+)'/iu])
+  .rule("comment", ["COMMENT", "=?", /'((?:''|[^'])+)'/i])
   .transform((comment) => comment.replace(SINGLE_QUOTE_REPLACER_REGEXP, "'"));
 parser
-  .rule("comment", ["COMMENT", "=?", /"((?:""|[^"])+)"/iu])
+  .rule("comment", ["COMMENT", "=?", /"((?:""|[^"])+)"/i])
   .transform((comment) => comment.replace(DOUBLE_QUOTE_REPLACER_REGEXP, '"'));
 
 parser
@@ -207,13 +207,13 @@ parser
   .transform((rowFormat) => ({ rowFormat }));
 parser.rule("option", "comment").transform((comment) => ({ comment }));
 
-parser.rule("using", ["USING", /btree|hash|rtree/iuy]);
+parser.rule("using", ["USING", /btree|hash|rtree/iy]);
 parser.rule("using", null);
 
-parser.rule("scalar", /\d+|true|false|null|'(?:''|[^'])+'|"(?:""|[^"])+"/iu);
+parser.rule("scalar", /\d+|true|false|null|'(?:''|[^'])+'|"(?:""|[^"])+"/i);
 
 parser.rule("value", "scalar");
-parser.rule("value", ["name", /(?!\s*\()/u]);
+parser.rule("value", ["name", /(?!\s*\()/]);
 parser.rule("value", "function");
 
 export const TableSchema = parser;

@@ -19,6 +19,6 @@ parser.rule("term", "factor");
 parser.rule("factor", "number");
 parser.rule("factor", ["(", "expression", ")"]);
 
-parser.rule("number", /-?\d+/u).transform((number) => Number(number));
+parser.rule("number", /-?\d+/).transform((number) => Number(number));
 
 export const Calculator = parser;

@@ -9,7 +9,7 @@ describe("Parser class", () => {
   test("rule only parser", () => {
     const parser = new Parser();
 
-    parser.rule("statement", /test/u);
+    parser.rule("statement", /test/);
 
     expect(parser.parse("test")).toBe("test");
 
@@ -25,7 +25,7 @@ describe("Parser class", () => {
   test("rule transform, returning 123", () => {
     const parser = new Parser();
 
-    parser.rule("statement", /test/u).transform(() => 123);
+    parser.rule("statement", /test/).transform(() => 123);
 
     expect(parser.parse("test")).toBe(123);
   });
@@ -33,7 +33,7 @@ describe("Parser class", () => {
   test("rule transform, returning own", () => {
     const parser = new Parser();
 
-    parser.rule("statement", /test/u).transform((own: string) => own);
+    parser.rule("statement", /test/).transform((own: string) => own);
 
     expect(parser.parse("test")).toBe("test");
   });
@@ -42,7 +42,7 @@ describe("Parser class", () => {
     const parser = new Parser();
 
     parser
-      .rule("statement", [/((t)(e)(s)(t))/u])
+      .rule("statement", [/((t)(e)(s)(t))/])
       .transform((test, t, e, s, t2) => {
         return [test, t, e, s, t2];
       });
@@ -67,7 +67,7 @@ describe("Parser class", () => {
     expect(() => {
       const parser = new Parser();
 
-      parser.rule("a", [/./u]);
+      parser.rule("a", [/./]);
       parser.token("b");
     }).toThrow('token "b" must be declared before rules');
   });
@@ -82,7 +82,7 @@ describe("Parser class", () => {
   });
 
   test("rule does not have a valid identifier", () => {
-    expect(() => new Parser().rule("123", /123/u)).toThrow(
+    expect(() => new Parser().rule("123", /123/)).toThrow(
       'rule "123" does not have a valid identifier'
     );
   });
@@ -99,7 +99,7 @@ describe("Parser class", () => {
   test("parse with token, multiple terms", () => {
     const parser = new Parser();
 
-    parser.token("test", ["test", "TEST", /123/u]);
+    parser.token("test", ["test", "TEST", /123/]);
     parser.rule("initial", ["test"]);
 
     expect(parser.parse("test")).toBeUndefined();
@@ -151,7 +151,7 @@ describe("Parser class", () => {
   test("separator as non-whitespace", () => {
     const parser = new Parser();
 
-    parser.separator(/-/u);
+    parser.separator(/-/);
     parser.token("a");
     parser.rule("initial", ["a", "a"]);
 
@@ -193,7 +193,7 @@ describe("Parser class", () => {
   test("rule with null alternative", () => {
     const parser = new Parser();
 
-    parser.rule("initial", [/a/u, "initial"]);
+    parser.rule("initial", [/a/, "initial"]);
     parser.rule("initial", null);
 
     expect(parser.parse("aa")).toStrictEqual(["a", ["a", null]]);
@@ -242,7 +242,7 @@ describe("Parser class", () => {
     const parser = new Parser({ ruleInitial: "initial" });
 
     parser.token("a");
-    parser.rule("subrule", [/b/u]);
+    parser.rule("subrule", [/b/]);
     parser.rule("initial", ["a", "subrule"]);
 
     expect(parser.parse("a b")).toBe("b");
@@ -255,9 +255,9 @@ describe("Parser class", () => {
 
     parser.token("a");
     parser
-      .rule("initial", [/a/u, "subrule"])
+      .rule("initial", [/a/, "subrule"])
       .transform((a, [b, c, [d, e]]) => a + b + c + d + e);
-    parser.rule("subrule", [/b/u, /(c)/u, /((d)(e))/u]);
+    parser.rule("subrule", [/b/, /(c)/, /((d)(e))/]);
 
     expect(parser.parse("abcde")).toBe("abcde");
   });
@@ -265,9 +265,9 @@ describe("Parser class", () => {
   test("subrules with forced wrapper", () => {
     const parser = new Parser();
 
-    parser.rule("initial", [/a/u, "subrule"]);
-    parser.rule("subrule", /b/u).wrap();
-    parser.rule("subrule", [/c/u, /d/u]);
+    parser.rule("initial", [/a/, "subrule"]);
+    parser.rule("subrule", /b/).wrap();
+    parser.rule("subrule", [/c/, /d/]);
 
     expect(parser.parse("ab")).toStrictEqual(["a", ["b"]]);
     expect(parser.parse("acd")).toStrictEqual(["a", ["c", "d"]]);
@@ -276,7 +276,7 @@ describe("Parser class", () => {
   test("consume before and after separators", () => {
     const parser = new Parser();
 
-    parser.rule("initial", [/a/u, /a/u]);
+    parser.rule("initial", [/a/, /a/]);
 
     expect(parser.parse(" aa ")).toStrictEqual(["a", "a"]);
     expect(parser.parse("aa ")).toStrictEqual(["a", "a"]);
@@ -286,7 +286,7 @@ describe("Parser class", () => {
   test("consume zero token, that must not be confused with no match", () => {
     const parser = new Parser();
 
-    parser.rule("initial", [/0/u, /1/u]);
+    parser.rule("initial", [/0/, /1/]);
 
     expect(parser.parse("01")).toStrictEqual(["0", "1"]);
   });
@@ -303,7 +303,7 @@ describe("Parser class", () => {
   test("consume rule with optional content must capture whitespace", () => {
     const parser = new Parser();
 
-    parser.rule("initial", [/0?/u, /1/u]);
+    parser.rule("initial", [/0?/, /1/]);
 
     expect(parser.parse("1")).toStrictEqual(["", "1"]);
   });
@@ -311,7 +311,7 @@ describe("Parser class", () => {
   test("consume rule with optional content must capture whitespace, including next grouping term", () => {
     const parser = new Parser();
 
-    parser.rule("initial", [/0?/u, /(1)(2)/u]);
+    parser.rule("initial", [/0?/, /(1)(2)/]);
 
     expect(parser.parse("12")).toStrictEqual(["", "1", "2"]);
   });
@@ -319,8 +319,8 @@ describe("Parser class", () => {
   test("consume rule with optional content must capture whitespace, including subrules", () => {
     const parser = new Parser();
 
-    parser.rule("initial", [/0?/u, "next"]);
-    parser.rule("next", /1/u);
+    parser.rule("initial", [/0?/, "next"]);
+    parser.rule("next", /1/);
 
     expect(parser.parse("1")).toStrictEqual(["", "1"]);
   });
@@ -329,7 +329,7 @@ describe("Parser class", () => {
     const parser = new Parser();
 
     parser.rule("initial", "initial");
-    parser.rule("initial", /ok/u);
+    parser.rule("initial", /ok/);
 
     expect(parser.parse("ok")).toBe("ok");
   });
@@ -337,9 +337,9 @@ describe("Parser class", () => {
   test("recursions must be avoided, except if not first", () => {
     const parser = new Parser();
 
-    parser.rule("initial", [/1/u, "initial", "initial"]);
+    parser.rule("initial", [/1/, "initial", "initial"]);
     parser.rule("initial", "initial");
-    parser.rule("initial", /1/u);
+    parser.rule("initial", /1/);
 
     expect(parser.parse("111")).toStrictEqual(["1", "1", "1"]);
   });
@@ -348,7 +348,7 @@ describe("Parser class", () => {
     const parser = new Parser();
 
     parser.rule("initial", "b");
-    parser.rule("initial", /ok/u);
+    parser.rule("initial", /ok/);
     parser.rule("b", "c");
     parser.rule("c", "initial");
 
@@ -368,7 +368,7 @@ describe("Parser class", () => {
     parser.rule("term", ["number", "*", "term"]).transform((a, b) => a * b);
     parser.rule("term", "number");
 
-    parser.rule("number", /\d/u).transform((d) => Number(d));
+    parser.rule("number", /\d/).transform((d) => Number(d));
 
     expect(parser.parse("1+2")).toBe(3);
     expect(parser.parse("2*3")).toBe(6);
@@ -388,7 +388,7 @@ describe("Parser class", () => {
     parser.token("+");
 
     parser.rule("sum", ["number", "+", "sum"]).transform((a, b) => a + b);
-    parser.rule("number", /\d/u).transform((d) => Number(d));
+    parser.rule("number", /\d/).transform((d) => Number(d));
 
     expect(() => parser.parse("1")).toThrow('unexpected "1" at offset 0');
   });
@@ -396,7 +396,7 @@ describe("Parser class", () => {
   test("captures none-to-multiples groups", () => {
     const parser = new Parser();
 
-    parser.rule("initial", [/(a)(b)/u, /(c)d/u, /e/u]);
+    parser.rule("initial", [/(a)(b)/, /(c)d/, /e/]);
 
     expect(parser.parse("abcde")).toStrictEqual(["a", "b", "c", "e"]);
   });
@@ -404,7 +404,7 @@ describe("Parser class", () => {
   test("captures basic and grouped", () => {
     const parser = new Parser();
 
-    parser.rule("initial", [/a/u, /(b)(c)/u]);
+    parser.rule("initial", [/a/, /(b)(c)/]);
 
     expect(parser.parse("abc")).toStrictEqual(["a", "b", "c"]);
   });
@@ -413,7 +413,7 @@ describe("Parser class", () => {
     const parser = new Parser();
 
     // eslint-disable-next-line jest/no-conditional-in-test
-    parser.rule("smallNumber", /\d+/u).validate((n) => n >= 0 && n <= 1000);
+    parser.rule("smallNumber", /\d+/).validate((n) => n >= 0 && n <= 1000);
 
     expect(parser.parse("0")).toBe("0");
     expect(parser.parse("1000")).toBe("1000");
@@ -423,8 +423,8 @@ describe("Parser class", () => {
   test("consume must fail if validation fails, with custom message", () => {
     const parser = new Parser();
 
-    parser.rule("example", [/abc/u, "smallNumber"]);
-    parser.rule("smallNumber", /\d+/u).validate((n) =>
+    parser.rule("example", [/abc/, "smallNumber"]);
+    parser.rule("smallNumber", /\d+/).validate((n) =>
       // eslint-disable-next-line jest/no-conditional-in-test
       n >= 0 && n <= 1000 ? true : new Error("number too big")
     );
@@ -457,7 +457,7 @@ describe("Parser class", () => {
     const parser = new Parser();
 
     parser
-      .rule("smallNumber", /\d+/u)
+      .rule("smallNumber", /\d+/)
       .transform((n) => {
         expect(true).toBe(true);
 
@@ -483,7 +483,7 @@ describe("Parser class", () => {
     const parser = new Parser();
 
     parser.rule("expression", "number").transform(Number);
-    parser.rule("number", /\d+/u);
+    parser.rule("number", /\d+/);
 
     expect(parser.parse("123")).toBe(123);
   });
@@ -494,7 +494,7 @@ describe("Parser class", () => {
     parser
       .rule("expression", "number")
       .transform((a, b) => Number(a) + Number(b));
-    parser.rule("number", /(\d)(\d)/u);
+    parser.rule("number", /(\d)(\d)/);
 
     expect(parser.parse("46")).toBe(10);
   });
@@ -502,8 +502,8 @@ describe("Parser class", () => {
   test("ensure that optional tokens are considered consumed", () => {
     const parser = new Parser();
 
-    parser.token(";", /;?/u);
-    parser.rule("example", [/example/u, ";"]);
+    parser.token(";", /;?/);
+    parser.rule("example", [/example/, ";"]);
 
     expect(parser.parse("example")).toBe("example");
     expect(parser.parse("example;")).toBe("example");
@@ -513,7 +513,7 @@ describe("Parser class", () => {
     const parser = new Parser();
 
     parser.token(";");
-    parser.rule("example", [/example/u, "token"]);
+    parser.rule("example", [/example/, "token"]);
     parser.rule("token", ";").transform(() => "fine");
 
     expect(parser.parse("example;")).toStrictEqual(["example", "fine"]);
@@ -523,7 +523,7 @@ describe("Parser class", () => {
     const parser = new Parser();
 
     parser.token("+");
-    parser.rule("example", [/\d+/u, "+", /abc/u]).validate((n) =>
+    parser.rule("example", [/\d+/, "+", /abc/]).validate((n) =>
       // eslint-disable-next-line jest/no-conditional-in-test
       Number(n) < 1000 ? true : new Error("number must be lower than 1000")
     );
@@ -539,7 +539,7 @@ describe("README.me examples", () => {
   test("readme: basic example", () => {
     const parser = new Parser();
 
-    parser.rule("example", /example/u);
+    parser.rule("example", /example/);
 
     expect(parser.parse("example")).toBe("example");
   });
@@ -547,7 +547,7 @@ describe("README.me examples", () => {
   test("readme: regular expression capture", () => {
     const parser = new Parser();
 
-    parser.rule("example", /(\d)\+(\d)/u);
+    parser.rule("example", /(\d)\+(\d)/);
 
     expect(parser.parse("1+2")).toStrictEqual(["1", "2"]);
   });
@@ -555,7 +555,7 @@ describe("README.me examples", () => {
   test("readme: regular expression capturing via groups", () => {
     const parser = new Parser();
 
-    parser.rule("example", /((\d)\+(\d))/u);
+    parser.rule("example", /((\d)\+(\d))/);
 
     expect(parser.parse("1+2")).toStrictEqual(["1+2", "1", "2"]);
   });
@@ -563,7 +563,7 @@ describe("README.me examples", () => {
   test("readme: regular expression capturing a single group", () => {
     const parser = new Parser();
 
-    parser.rule("example", /(\d)\+\d/u);
+    parser.rule("example", /(\d)\+\d/);
 
     expect(parser.parse("1+2")).toBe("1");
   });
@@ -572,7 +572,7 @@ describe("README.me examples", () => {
     const parser = new Parser();
 
     parser
-      .rule("example", /(\d)\+(\d)/u)
+      .rule("example", /(\d)\+(\d)/)
       .transform((a, b) => Number(a) + Number(b));
 
     expect(parser.parse("1+2")).toBe(3);
@@ -582,7 +582,7 @@ describe("README.me examples", () => {
     const parser = new Parser();
 
     parser.token("+");
-    parser.token("digits", /\d+/u);
+    parser.token("digits", /\d+/);
 
     parser.rule("example", ["digits", "+", "digits"]);
 
@@ -595,7 +595,7 @@ describe("README.me examples", () => {
     parser.token("+");
 
     parser.rule("example", ["digits", "+", "digits"]);
-    parser.rule("digits", /\d+/u);
+    parser.rule("digits", /\d+/);
 
     expect(parser.parse("1+2")).toStrictEqual(["1", "2"]);
     expect(parser.parse("1 + 2")).toStrictEqual(["1", "2"]);
@@ -607,7 +607,7 @@ describe("README.me examples", () => {
     parser.tokens("+", "-");
     parser.token("*", "x");
 
-    parser.rule("example", [/\d/u, "+", /\d/u, "-", /\d/u, "*", /\d/u]);
+    parser.rule("example", [/\d/, "+", /\d/, "-", /\d/, "*", /\d/]);
 
     expect(parser.parse("1+2-3x4")).toStrictEqual(["1", "2", "3", "4"]);
   });
@@ -615,8 +615,8 @@ describe("README.me examples", () => {
   test("readme: defining a different separator", () => {
     const parser = new Parser();
 
-    parser.separator(/-/u);
-    parser.rule("example", [/\d/u, /\d/u]);
+    parser.separator(/-/);
+    parser.rule("example", [/\d/, /\d/]);
 
     expect(parser.parse("1-2")).toStrictEqual(["1", "2"]);
   });
@@ -625,7 +625,7 @@ describe("README.me examples", () => {
     const parser = new Parser();
 
     parser.separator(false);
-    parser.rule("example", [/\d/u, /\d/u]);
+    parser.rule("example", [/\d/, /\d/]);
 
     expect(() => parser.parse("1 2")).toThrow('unexpected " " at offset 1');
   });
@@ -635,8 +635,8 @@ describe("README.me examples", () => {
 
     parser.token("+");
 
-    parser.ruleStrict("example", [/\d/u, "+", /\d/u]);
-    parser.ruleSeparated("example", [/\d/u, "+", /\d/u]);
+    parser.ruleStrict("example", [/\d/, "+", /\d/]);
+    parser.ruleSeparated("example", [/\d/, "+", /\d/]);
 
     expect(parser.parse("1+2")).toStrictEqual(["1", "2"]);
     expect(parser.parse("1 + 2")).toStrictEqual(["1", "2"]);
@@ -649,7 +649,7 @@ describe("README.me examples", () => {
     parser.token("+");
 
     parser.rule("sum", ["number", "+", "sum"]).transform((a, b) => a + b);
-    parser.rule("number", /\d/u).transform((d) => Number(d));
+    parser.rule("number", /\d/).transform((d) => Number(d));
 
     expect(() => parser.parse("1+2+3+4+5")).toThrow(
       'unexpected "1" at offset 0'
@@ -663,7 +663,7 @@ describe("README.me examples", () => {
 
     parser.rule("sum", ["number", "+", "sum"]).transform((a, b) => a + b);
     parser.rule("sum", ["number"]);
-    parser.rule("number", /\d/u).transform((d) => Number(d));
+    parser.rule("number", /\d/).transform((d) => Number(d));
 
     expect(parser.parse("1+2+3+4+5")).toBe(15);
   });
