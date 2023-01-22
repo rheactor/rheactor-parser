@@ -15,8 +15,6 @@
     "project": "./tsconfig.json"
   },
 
-  "ignorePatterns": ["./*", "!./src", "!./examples"],
-
   "rules": {
     // Eslint: https://eslint.org/docs/latest/rules/
     "accessor-pairs": "warn",

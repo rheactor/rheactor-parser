@@ -1,5 +1,4 @@
-import { hasCircularPath } from "@/Helper";
-import { getTokenIdentifier } from "./Helper";
+import { getTokenIdentifier, hasCircularPath } from "@/Helper";
 
 describe("Helper functions", () => {
   test("getTokenIdentifier", () => {

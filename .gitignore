@@ -1,2 +1,6 @@
+dist/examples/
+
 coverage/
-dist/
+
+*.tsbuildinfo
+*.test.d.ts

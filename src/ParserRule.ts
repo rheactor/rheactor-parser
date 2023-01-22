@@ -5,7 +5,7 @@ import type {
   RuleTerms,
   RuleTransformer,
   RuleValidator,
-} from "./Helper";
+} from "@/Helper";
 
 export class ParserRule {
   public transformer?: RuleTransformer;

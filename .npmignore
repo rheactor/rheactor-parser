@@ -1,7 +1,8 @@
 .github/
 
 coverage/
-src/examples/
+src/
+dist/example/
 
 .eslintrc.json
 .gitignore
@@ -9,6 +10,6 @@ src/examples/
 babel.config.json
 jest.config.json
 README.md
-tsconfig.json
 
 *.test.ts
+*.test.d.ts
