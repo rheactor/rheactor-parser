@@ -1,4 +1,4 @@
-import { type ParserRule } from "@/ParserRule";
+import { type ParserRule } from "./ParserRule";
 export declare class ParserConsumerResult {
     rule: ParserRule;
     offset: number;

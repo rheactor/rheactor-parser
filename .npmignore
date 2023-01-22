@@ -9,6 +9,8 @@ dist/example/
 .npmignore
 babel.config.json
 jest.config.json
+tsconfig.json
+tsconfig.prod.json
 README.md
 
 *.test.ts

@@ -263,6 +263,33 @@ describe(`TableSchema example`, () => {
     });
   });
 
+  test(`constraints`, () => {
+    expect(
+      TableSchema.parse(
+        "CREATE TABLE test ( `json` LONGTEXT, CONSTRAINT `json` CHECK (json_valid(`json`)) )"
+      )
+    ).toStrictEqual({
+      table: `test`,
+      statements: [
+        {
+          format: `column`,
+          name: "json",
+          type: { name: `LONGTEXT` },
+          properties: null,
+        },
+        {
+          format: `constraint`,
+          identifier: "json",
+          check: {
+            name: "json_valid",
+            args: ["json"],
+          },
+        },
+      ],
+      options: null,
+    });
+  });
+
   test(`table options`, () => {
     expect(
       TableSchema.parse(
@@ -412,13 +439,12 @@ describe(`TableSchema example`, () => {
           using: "BTREE",
         },
         {
-          format: "index",
-          func: {
-            args: ["collate_string"],
-            name: "json_valid",
-          },
+          format: "constraint",
           identifier: "collate_string",
-          type: "unique",
+          check: {
+            name: "json_valid",
+            args: ["collate_string"],
+          },
         },
       ],
       table: "test",

@@ -1,5 +1,5 @@
-import { RuleSeparatorMode, type RuleTerms, type TokenIdentifier, type TokenTerms, type TokenTermsArray } from "@/Helper";
-import { ParserRule } from "@/ParserRule";
+import { RuleSeparatorMode, type RuleTerms, type TokenIdentifier, type TokenTerms, type TokenTermsArray } from "./Helper";
+import { ParserRule } from "./ParserRule";
 interface ParserOptions {
     ruleInitial?: string;
 }

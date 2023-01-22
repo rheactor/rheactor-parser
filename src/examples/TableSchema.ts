@@ -79,6 +79,11 @@ parser
   .transform((identifier) => identifier.replace(TICK_REPLACER_REGEXP, "`"));
 parser.rule("identifier", "name");
 
+parser
+  // eslint-disable-next-line no-control-regex
+  .rule("identifierRaw", /`((?:``|[\u0001-\u005F\u0061-\uFFFF])+)`/y);
+parser.rule("identifierRaw", "name");
+
 parser.rule("name", /[\w$\u0080-\uFFFF]+/y);
 
 parser
@@ -119,11 +124,10 @@ parser
     "function",
     ")",
   ])
-  .transform((identifier, func) => ({
-    format: "index",
-    type: "unique",
+  .transform((identifier, check) => ({
+    format: "constraint",
     identifier,
-    func,
+    check,
   }));
 parser
   .rule("statement", ["identifier", "function", "properties"])
@@ -146,7 +150,7 @@ parser.rule("arguments", "argument").wrap();
 parser.rule("arguments", null).wrap();
 
 parser.rule("argument", "scalar");
-parser.rule("argument", "identifier");
+parser.rule("argument", "identifierRaw");
 
 parser
   .rule("properties", ["property", "properties"])

@@ -1,4 +1,4 @@
-import { type Parser } from "@/Parser";
+import { type Parser } from "./Parser";
 export declare class ParserConsumer {
     parser: Parser;
     input: string;

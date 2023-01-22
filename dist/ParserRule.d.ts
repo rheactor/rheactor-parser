@@ -1,4 +1,4 @@
-import type { ArrayUnwrap, RuleLiteral, RuleSeparatorMode, RuleTerms, RuleTransformer, RuleValidator } from "@/Helper";
+import type { ArrayUnwrap, RuleLiteral, RuleSeparatorMode, RuleTerms, RuleTransformer, RuleValidator } from "./Helper";
 export declare class ParserRule {
     terms: Array<ArrayUnwrap<RuleTerms> | RuleLiteral>;
     separatorMode?: RuleSeparatorMode | undefined;
