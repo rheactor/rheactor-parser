@@ -4,5 +4,6 @@
     "target": "es2022",
     "minify": { "mangle": true }
   },
+  "test": ".*\\.js$",
   "minify": true
 }
